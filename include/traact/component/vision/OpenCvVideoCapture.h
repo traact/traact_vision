@@ -60,6 +60,7 @@ class OpenCVVideoCapture : public Component {
     running_ = true;
     spdlog::info("starting OpenCV_VideoCapture");
     thread_.reset(new std::thread(std::bind(&OpenCVVideoCapture::threadLoop, this)));
+	return true;
   }
   bool stop() override {
     spdlog::info("stopping OpenCV_VideoCapture");
@@ -67,7 +68,7 @@ class OpenCVVideoCapture : public Component {
       running_ = false;
       thread_->join();
     }
-
+	return true;
   }
 
  private:

@@ -37,10 +37,11 @@
 #include <traact/datatypes.h>
 #include <opencv2/core.hpp>
 #include <opencv2/core/cuda.hpp>
+#include <traact/traact_vision_export.h>
 
 namespace traact::vision {
 
-enum class PixelFormat {
+enum class TRAACT_VISION_EXPORT PixelFormat {
   UNKNOWN_PIXELFORMAT = 0,
   LUMINANCE,
   RGB,
@@ -55,9 +56,9 @@ enum class PixelFormat {
   MJPEG
 };
 
-class Image;
+class TRAACT_VISION_EXPORT Image;
 
-struct ImageHeader {
+struct TRAACT_VISION_EXPORT ImageHeader {
   ImageHeader() {}
   /**
      * Definitions needed by traact and the user to use a datatype
@@ -74,7 +75,7 @@ struct ImageHeader {
   int device_id = 0;
 };
 
-struct CameraCalibrationHeader {
+struct TRAACT_VISION_EXPORT CameraCalibrationHeader {
   CameraCalibrationHeader() {}
   /**
      * Definitions needed by traact and the user to use a datatype
@@ -85,7 +86,7 @@ struct CameraCalibrationHeader {
 
 };
 
-class Image {
+class TRAACT_VISION_EXPORT Image {
  public:
   Image();
   Image(ImageHeader header, bool is_cpu);
@@ -116,7 +117,7 @@ class Image {
 
 };
 
-class ImageFactoryObject : public buffer::GenericFactoryObject {
+class TRAACT_VISION_EXPORT ImageFactoryObject : public buffer::GenericFactoryObject {
  public:
   std::string getTypeName() override {
     return std::move(std::string(ImageHeader::MetaType));

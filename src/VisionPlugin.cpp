@@ -76,6 +76,8 @@ class VisionPlugin : public traact::facade::Plugin {
 
     return nullptr;
   }
+
+  RTTR_ENABLE(traact::facade::Plugin)
 };
 
 }
@@ -88,6 +90,6 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
   using namespace rttr;
   registration::class_<traact::vision::VisionPlugin>("VisionPlugin").constructor<>()
       (
-          policy::ctor::as_std_shared_ptr
+          //policy::ctor::as_std_shared_ptr
       );
 }

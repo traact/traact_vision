@@ -107,6 +107,7 @@ cv::Mat &&traact::vision::Image::GetCpuCopy() const {
     return std::move(result);
   }
   assert("image is not initialized");
+  return std::move(cv::Mat());
 }
 void traact::vision::Image::SetCpuMat(cv::Mat &image) {
   cpu_mat_ = image;
@@ -128,5 +129,8 @@ const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<
                                                                                                          void *header) {
   return *static_cast<vision::ImageHeader::NativeType *>(obj);
 }
+
+template TRAACT_VISION_EXPORT vision::ImageHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void *, void*);
+template TRAACT_VISION_EXPORT const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void*, void*);
 
 }

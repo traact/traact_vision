@@ -5,9 +5,7 @@ from conans import ConanFile, CMake, tools
 
 class Traact(ConanFile):
     name = "traact_vision"
-    version = "0.0.1"
-    default_user = "camposs"
-    default_channel = "stable"
+    version = "0.0.1"    
 
     description = "Image datatype and vision functions for traact using opencv"
     url = ""
@@ -21,29 +19,25 @@ class Traact(ConanFile):
     compiler = "cppstd"
     options = {
         "shared": [True, False],
-        "workspaceBuild" : [True, False],
         "with_tests": [True, False]
     }
 
     default_options = {
         "shared": True,
-        "workspaceBuild" : False,
         "with_tests": True
     }
 
     exports_sources = "include/*", "src/*", "tests/*", "CMakeLists.txt"
 
-    def requirements(self):
-        userChannel = "%s/%s" % (self.default_user, self.default_channel)
-        if self.options.workspaceBuild:
-            userChannel = "local/dev"
+    def requirements(self):        
+        self.requires("traact_facade/%s@camposs/stable" % self.version)
 
-        self.requires("traact_facade/%s@%s" % (self.version, userChannel))
+        self.requires("vtk/8.2.0-r4@camposs/stable")
+        self.requires("opencv/3.4.8@camposs/stable")
 
         if self.options.with_tests:
             self.requires("gtest/1.10.0")
-        self.requires("opencv/3.4.8@camposs/stable")
-        
+
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.verbose = True
