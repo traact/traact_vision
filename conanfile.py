@@ -59,9 +59,11 @@ class Traact(ConanFile):
         self.options['opencv'].shared = self.options.shared
 
         self.options['opencv'].with_cuda = True
+        #self.options['opencv'].with_tbb = True
+        
         self.options['opencv'].with_qt = False
-        self.options['opencv'].with_viz = True
-        self.options['opencv'].with_gtk = True
+        #self.options['opencv'].with_viz = True        
+        #self.options['opencv'].with_gtk = True
 
     def build(self):
         cmake = self._configure_cmake()

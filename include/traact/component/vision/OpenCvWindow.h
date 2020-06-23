@@ -57,11 +57,22 @@ class OpenCvWindow : public traact::DefaultComponent {
 
   bool init() override {
 
-    cv::namedWindow( GetWindowName(), cv::WINDOW_AUTOSIZE );
-    cv::startWindowThread();
+	  std::lock_guard guard(component_lock_);
+	  if (running_) {
+		  return true;
+	  }
+
+	  SPDLOG_DEBUG("Starting K4A Camera");
+	  thread_ = std::make_shared<std::thread>([this] {
+		  running_ = true;
+		  thread_func();
+	  });
+	  return true;
+        
     return Component::init();
   }
   bool teardown() override {
+	  
     return Component::teardown();
   }
 
@@ -69,9 +80,13 @@ class OpenCvWindow : public traact::DefaultComponent {
     using namespace traact::vision;
     const auto &input = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
 
-    auto image = input.GetCpuMat();
-    cv::imshow( GetWindowName(), image );
-    cv::waitKey(1);
+	
+    auto image = input.GetCpuMat();	
+
+	std::lock_guard guard(component_lock_);
+	new_image_ = true;
+	current_image = image.clone();
+   
 
 
     return true;
@@ -81,6 +96,27 @@ class OpenCvWindow : public traact::DefaultComponent {
   std::string GetWindowName() {
     return getName();
   }
+
+private:
+	std::shared_ptr<std::thread> thread_;
+	bool running_{ false };
+	std::mutex component_lock_;
+	void thread_func() {
+		cv::namedWindow(GetWindowName(), cv::WINDOW_AUTOSIZE);
+
+		while (running_) {
+			std::lock_guard guard(component_lock_);
+			if (new_image_) {
+				cv::imshow(GetWindowName(), current_image);
+				cv::waitKey(1);
+				new_image_ = false;
+			}
+			
+		}
+	}
+	cv::Mat current_image;
+	bool new_image_{ false };
+
 
 };
 
