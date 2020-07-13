@@ -18,7 +18,7 @@ set(PLUGIN_HEADERS
 set(LIB_SOURCES src/vision.cpp)
 
 set(PLUGIN_SOURCES src/VisionPlugin.cpp
-        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCvWindow.h)
+        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCvWindow.h include/traact/component/vision/OpenCVModule.cpp include/traact/component/vision/OpenCVModule.h)
 
 
 # conan is required hard, library name, version and description are configured from conan

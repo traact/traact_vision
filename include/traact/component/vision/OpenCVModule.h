@@ -29,56 +29,44 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
+#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVMODULE_H_
+#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVMODULE_H_
 
 #include <traact/traact.h>
 #include <traact/vision.h>
 #include <opencv2/highgui.hpp>
-#include <traact/component/vision/OpenCVModule.h>
-
+#include <map>
 namespace traact::component::vision {
-
-
-
-class OpenCvWindow : public OpenCVComponent {
+class OpenCVModule : public Module {
  public:
-  OpenCvWindow(const std::string &name)
-      : OpenCVComponent(name) {}
+  OpenCVModule();
+  bool init(ComponentPtr module_component) override;
+  bool start(ComponentPtr module_component) override;
+  bool stop(ComponentPtr module_component) override;
+  bool teardown(ComponentPtr module_component) override;
 
-  static traact::pattern::Pattern::Ptr getPattern() {
-    using namespace traact::vision;
-    traact::pattern::spatial::SpatialPattern::Ptr
-        pattern =
-        std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvWindow", serial);
+  void updateWindow(const std::string& window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>& image);
 
-    pattern->addConsumerPort("input", ImageHeader::MetaType);
+ private:
+  std::shared_ptr<std::thread> thread_;
+  bool running_{false};
+  void thread_loop();
+  std::map<std::string, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> > images_;
+  std::map<std::string, bool> windows_;
+  std::mutex data_lock_;
+};
 
-    return pattern;
-  }
-
-  bool processTimePoint(traact::DefaultComponentBuffer &data) override {
-    using namespace traact::vision;
-    const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
-
-	
-    //auto image = input.GetCpuMat();
-
-    //opencv_module_->updateWindow(getName(), image.clone());
-    //opencv_module_->updateWindow(getName(), image);
-    opencv_module_->updateWindow(getName(), input);
-
-
-    return true;
-
-  }
-
-
-
-
-
+class OpenCVComponent : public ModuleComponent {
+ public:
+  OpenCVComponent(const std::string &name);
+  std::string GetModuleKey() override;
+  Module::Ptr InstantiateModule() override;
+  bool init() override;
+ protected:
+  std::shared_ptr<OpenCVModule> opencv_module_;
 };
 
 }
 
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
+
+#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVMODULE_H_

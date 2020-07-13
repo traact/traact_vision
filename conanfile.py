@@ -61,7 +61,7 @@ class Traact(ConanFile):
         self.options['opencv'].with_cuda = True
         #self.options['opencv'].with_tbb = True
         
-        self.options['opencv'].with_qt = False
+        #self.options['opencv'].with_qt = False
         #self.options['opencv'].with_viz = True        
         #self.options['opencv'].with_gtk = True
 
