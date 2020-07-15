@@ -15,10 +15,10 @@ set(PLUGIN_HEADERS
 
 
 # rest of source code
-set(LIB_SOURCES src/vision.cpp)
+set(LIB_SOURCES src/vision.cpp include/traact/math/perspective.cpp include/traact/math/perspective.h include/traact/vision_datatypes.h include/traact/opencv/OpenCVUtils.h include/traact/math/ceres/PointReprojectionError.h include/traact/math/utils.h include/traact/vision/UndistortionHelper.cpp include/traact/vision/UndistortionHelper.h)
 
 set(PLUGIN_SOURCES src/VisionPlugin.cpp
-        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCvWindow.h)
+        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCvWindow.h include/traact/component/vision/OpenCVUndistortImage.cpp include/traact/component/vision/OpenCVUndistortImage.h)
 
 
 # conan is required hard, library name, version and description are configured from conan
@@ -135,6 +135,6 @@ install(TARGETS traact_vision_plugin
 
 
 if (WITH_TESTS)
-    #add_subdirectory(tests)
+    add_subdirectory(tests)
 endif ()
 

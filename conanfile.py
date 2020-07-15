@@ -31,9 +31,12 @@ class Traact(ConanFile):
 
     def requirements(self):        
         self.requires("traact_facade/%s@camposs/stable" % self.version)
+        self.requires("traact_spatial/%s@camposs/stable" % self.version)
 
         self.requires("vtk/8.2.0-r4@camposs/stable")
         self.requires("opencv/3.4.8@camposs/stable")
+        self.requires("ceres/1.14.0-r4@camposs/stable")
+
 
         if self.options.with_tests:
             self.requires("gtest/1.10.0")
@@ -61,7 +64,7 @@ class Traact(ConanFile):
         self.options['opencv'].with_cuda = True
         #self.options['opencv'].with_tbb = True
         
-        self.options['opencv'].with_qt = False
+        #self.options['opencv'].with_qt = False
         #self.options['opencv'].with_viz = True        
         #self.options['opencv'].with_gtk = True
 

@@ -29,48 +29,23 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
+#ifndef TRAACTMULTI_PERSPECTIVE_H
+#define TRAACTMULTI_PERSPECTIVE_H
 
-#include <traact/pattern/spatial/SpatialPattern.h>
+#include <traact/vision_datatypes.h>
 #include <traact/datatypes.h>
-#include <traact/vision.h>
-namespace traact::component::vision {
-static traact::pattern::spatial::SpatialPattern::Ptr getUncalibratedCameraPattern() {
 
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern =
-      std::make_shared<traact::pattern::spatial::SpatialPattern>("UncalibratedCameraPattern", serial);
+#include <traact/math/utils.h>
 
-  pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
-  pattern->addCoordianteSystem("ImagePlane")
-      .addCoordianteSystem("Image", true)
-      .addEdge("ImagePlane", "Image", "output");
+namespace traact::math {
+    Eigen::Vector2d reproject_point(const vision::CameraCalibration& intrinsics, const Eigen::Vector3d& point);
+    Eigen::Vector2d reproject_point(const Eigen::Affine3d& cam2world, const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3d& point);
 
-  std::set<std::string> pixel_formats;
-  pixel_formats.emplace("Luminance");
-  pattern->addParameter("width", 640, 1)
-  .addParameter("height", 320,1)
-  .addParameter("PixelFormat", "Luminance", pixel_formats);
+    bool estimate_camera_pose(Eigen::Affine3d& pose_result, const std::vector<Eigen::Vector2d>& image_points, const vision::CameraCalibration& intrinsics, const std::vector<Eigen::Vector3d>& model_points);
 
-  return pattern;
+    bool estimate_3d_point(Eigen::Vector3d& result,  const std::vector<Eigen::Affine3d>& world2camera, const std::vector<vision::CameraCalibration>& intrinsics, const std::vector<Eigen::Vector2d> image_point);
+
+    Eigen::Matrix<double, 3, 4> create_projection_matrix(const Eigen::Affine3d& cam2world, const vision::CameraCalibration calibration);
 }
 
-static traact::pattern::spatial::SpatialPattern::Ptr getCameraPattern() {
-
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern = getUncalibratedCameraPattern();
-
-  pattern->addProducerPort("calibration", traact::vision::CameraCalibrationHeader::MetaType);
-
-  pattern->addCoordianteSystem("Camera")
-      .addEdge("ImagePlane", "Camera", "intrinsic");
-
-
-
-  return pattern;
-}
-
-}
-
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
+#endif //TRAACTMULTI_PERSPECTIVE_H

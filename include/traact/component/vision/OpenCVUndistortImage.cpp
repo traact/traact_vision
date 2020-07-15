@@ -29,48 +29,4 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
-
-#include <traact/pattern/spatial/SpatialPattern.h>
-#include <traact/datatypes.h>
-#include <traact/vision.h>
-namespace traact::component::vision {
-static traact::pattern::spatial::SpatialPattern::Ptr getUncalibratedCameraPattern() {
-
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern =
-      std::make_shared<traact::pattern::spatial::SpatialPattern>("UncalibratedCameraPattern", serial);
-
-  pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
-  pattern->addCoordianteSystem("ImagePlane")
-      .addCoordianteSystem("Image", true)
-      .addEdge("ImagePlane", "Image", "output");
-
-  std::set<std::string> pixel_formats;
-  pixel_formats.emplace("Luminance");
-  pattern->addParameter("width", 640, 1)
-  .addParameter("height", 320,1)
-  .addParameter("PixelFormat", "Luminance", pixel_formats);
-
-  return pattern;
-}
-
-static traact::pattern::spatial::SpatialPattern::Ptr getCameraPattern() {
-
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern = getUncalibratedCameraPattern();
-
-  pattern->addProducerPort("calibration", traact::vision::CameraCalibrationHeader::MetaType);
-
-  pattern->addCoordianteSystem("Camera")
-      .addEdge("ImagePlane", "Camera", "intrinsic");
-
-
-
-  return pattern;
-}
-
-}
-
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
+#include "OpenCVUndistortImage.h"

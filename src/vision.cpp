@@ -37,7 +37,7 @@ const char * ImageHeader::NativeTypeName =  "traact::vision::Image";
 const char * ImageHeader::MetaType =  "vision:Image";
 
 const char * CameraCalibrationHeader::NativeTypeName =  "traact::vision::CameraIntrinsic";
-const char * CameraCalibrationHeader::MetaType =  "vision:CameraIntrinsics";
+const char * CameraCalibrationHeader::MetaType =  "vision:CameraCalibration";
 }
 
 traact::vision::Image::Image() : is_cpu_(false), is_gpu_(false) {
@@ -130,7 +130,23 @@ const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<
   return *static_cast<vision::ImageHeader::NativeType *>(obj);
 }
 
+    template<>
+    vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType,
+            vision::CameraCalibrationHeader>(void *obj,
+                                 void *header) {
+        return *static_cast<vision::CameraCalibrationHeader::NativeType *>(obj);
+    }
+
+    template<>
+    const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType,
+            vision::CameraCalibrationHeader>(void *obj,
+                                 void *header) {
+        return *static_cast<vision::CameraCalibrationHeader::NativeType *>(obj);
+    }
+
 template TRAACT_VISION_EXPORT vision::ImageHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void *, void*);
 template TRAACT_VISION_EXPORT const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void*, void*);
+    template TRAACT_VISION_EXPORT vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void *, void*);
+    template TRAACT_VISION_EXPORT const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void*, void*);
 
 }

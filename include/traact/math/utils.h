@@ -29,48 +29,25 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
+#ifndef TRAACTMULTI_UTILS_H
+#define TRAACTMULTI_UTILS_H
 
-#include <traact/pattern/spatial/SpatialPattern.h>
-#include <traact/datatypes.h>
-#include <traact/vision.h>
-namespace traact::component::vision {
-static traact::pattern::spatial::SpatialPattern::Ptr getUncalibratedCameraPattern() {
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <traact/vision_datatypes.h>
 
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern =
-      std::make_shared<traact::pattern::spatial::SpatialPattern>("UncalibratedCameraPattern", serial);
-
-  pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
-  pattern->addCoordianteSystem("ImagePlane")
-      .addCoordianteSystem("Image", true)
-      .addEdge("ImagePlane", "Image", "output");
-
-  std::set<std::string> pixel_formats;
-  pixel_formats.emplace("Luminance");
-  pattern->addParameter("width", 640, 1)
-  .addParameter("height", 320,1)
-  .addParameter("PixelFormat", "Luminance", pixel_formats);
-
-  return pattern;
-}
-
-static traact::pattern::spatial::SpatialPattern::Ptr getCameraPattern() {
-
-  traact::pattern::spatial::SpatialPattern::Ptr
-      pattern = getUncalibratedCameraPattern();
-
-  pattern->addProducerPort("calibration", traact::vision::CameraCalibrationHeader::MetaType);
-
-  pattern->addCoordianteSystem("Camera")
-      .addEdge("ImagePlane", "Camera", "intrinsic");
-
-
-
-  return pattern;
-}
+namespace traact {
+    static inline void traact2eigen(const vision::CameraCalibration& calibration, Eigen::Matrix3d &intrinsics) {
+        intrinsics.setIdentity();
+        intrinsics(0,0) = calibration.fx;
+        intrinsics(1,1) = calibration.fy;
+        intrinsics(0,2) = calibration.cx;
+        intrinsics(1,2) = calibration.cy;
+        intrinsics(0,1) = calibration.skew;
+    }
 
 }
 
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
+#endif //TRAACTMULTI_UTILS_H
+

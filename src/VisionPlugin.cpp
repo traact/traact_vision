@@ -36,6 +36,7 @@
 #include "traact/vision.h"
 #include "traact/component/vision/OpenCvVideoCapture.h"
 #include "traact/component/vision/OpenCvWindow.h"
+#include <traact/component/vision/OpenCVUndistortImage.h>
 
 namespace traact::vision {
 
@@ -44,10 +45,13 @@ class VisionPlugin : public traact::facade::Plugin {
  public:
   void fillDatatypeNames(std::vector<std::string> &datatype_names) override {
     datatype_names.emplace_back(ImageHeader::MetaType);
+      datatype_names.emplace_back(CameraCalibrationHeader::MetaType);
   }
   buffer::GenericFactoryObject::Ptr instantiateDataType(const std::string &datatype_name) override {
     if (datatype_name == std::string(ImageHeader::MetaType))
       return std::make_shared<ImageFactoryObject>();
+      if (datatype_name == std::string(CameraCalibrationHeader::MetaType))
+          return std::make_shared<CameraCalibrationFactoryObject>();
     return nullptr;
   }
 
@@ -55,12 +59,15 @@ class VisionPlugin : public traact::facade::Plugin {
   void fillPatternNames(std::vector<std::string> &pattern_names) override {
     pattern_names.emplace_back("OpenCvVideoCapture");
     pattern_names.emplace_back("OpenCvWindow");
+      pattern_names.emplace_back("OpenCVUndistortImage");
   }
   pattern::Pattern::Ptr instantiatePattern(const std::string &pattern_name) override {
     if (pattern_name == "OpenCvVideoCapture")
       return component::vision::OpenCVVideoCapture::getPattern();
     if (pattern_name == "OpenCvWindow")
       return component::vision::OpenCvWindow::getPattern();
+      if (pattern_name == "OpenCVUndistortImage")
+          return component::vision::OpenCVUndistortImage::getPattern();
 
 
     return nullptr;
@@ -72,6 +79,8 @@ class VisionPlugin : public traact::facade::Plugin {
       return std::make_shared<component::vision::OpenCVVideoCapture>(new_component_name);
     if (pattern_name == "OpenCvWindow")
       return std::make_shared<component::vision::OpenCvWindow>(new_component_name);
+      if (pattern_name == "OpenCVUndistortImage")
+          return std::make_shared<component::vision::OpenCVUndistortImage>(new_component_name);
 
 
     return nullptr;
