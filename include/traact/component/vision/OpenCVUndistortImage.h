@@ -47,12 +47,12 @@ namespace traact::component::vision {
                                                                          traact::component::ComponentType::Functional) {
         }
 
-        static traact::pattern::Pattern::Ptr getPattern() {
+        traact::pattern::Pattern::Ptr GetPattern()  const {
 
 
             traact::pattern::spatial::SpatialPattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCVUndistortImage", unlimited);
+                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCVUndistortImage", serial);
 
             pattern->addConsumerPort("input_image", traact::vision::ImageHeader::MetaType);
             pattern->addConsumerPort("input_calibration", traact::vision::CameraCalibrationHeader::MetaType);
@@ -71,7 +71,6 @@ namespace traact::component::vision {
             using namespace traact::vision;
             const auto& image = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
             const auto& calibration = data.getInput<CameraCalibrationHeader::NativeType, CameraCalibrationHeader>(1);
-
             auto& output = data.getOutput<ImageHeader::NativeType, ImageHeader>(0);
 
             undistorter_.Init(calibration, false, true, 0);
@@ -82,6 +81,8 @@ namespace traact::component::vision {
 
     private:
         ::traact::vision::UndistortionHelper undistorter_;
+
+    RTTR_ENABLE(Component)
 
     };
 

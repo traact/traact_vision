@@ -74,6 +74,8 @@ add_link_options( -fno-gnu-unique )
 add_library(${CONAN_PACKAGE_NAME} SHARED
         ${LIB_HEADERS}
         ${LIB_SOURCES}
+        ${PLUGIN_HEADERS}
+        ${PLUGIN_SOURCES}
         )
 
 conan_target_link_libraries(${CONAN_PACKAGE_NAME})
@@ -97,41 +99,6 @@ install(TARGETS ${CONAN_PACKAGE_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-
-# Plugin -----------------------
-add_library(traact_vision_plugin SHARED
-        ${PLUGIN_HEADERS}
-        ${PLUGIN_SOURCES}
-        )
-
-target_link_libraries(traact_vision_plugin
-        ${CONAN_PACKAGE_NAME})
-
-#set_target_properties(traact_spatial_plugin PROPERTIES VERSION ${CONAN_PACKAGE_VERSION})
-#set_target_properties(${CONAN_PACKAGE_NAME} PROPERTIES PUBLIC_HEADER ${LIB_HEADERS})
-
-target_include_directories(${CONAN_PACKAGE_NAME} PUBLIC
-        $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_include_directories(${CONAN_PACKAGE_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        )
-
-if (MSVC)
-    # per default disable extended aligned storage for now on msvc
-    add_definitions(-D_DISABLE_EXTENDED_ALIGNED_STORAGE -DHAVE_SNPRINTF)
-endif()
-
-IF (NOT WIN32)
-    MESSAGE(STATUS "Set boost::ublas alignment to 16")
-    set_target_properties(${CONAN_PACKAGE_NAME} PROPERTIES COMPILE_DEFINITIONS "BOOST_UBLAS_BOUNDED_ARRAY_ALIGN=__attribute__ ((aligned (16)))")
-ENDIF (NOT WIN32)
-
-install(TARGETS traact_vision_plugin
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-#-----------------------------
 
 
 if (WITH_TESTS)

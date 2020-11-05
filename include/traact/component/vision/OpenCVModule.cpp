@@ -55,13 +55,14 @@ bool traact::component::vision::OpenCVModule::stop(traact::component::Module::Co
 bool traact::component::vision::OpenCVModule::teardown(traact::component::Module::ComponentPtr module_component) {
   return Module::teardown(module_component);
 }
-void traact::component::vision::OpenCVModule::updateWindow(const std::string &window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> &image) {
-  std::lock_guard lock(data_lock_);
+//void traact::component::vision::OpenCVModule::updateWindow(const std::string &window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> &image) {
+void traact::component::vision::OpenCVModule::updateWindow(const std::string& window_name, const cv::Mat& image){
+  //std::lock_guard lock(data_lock_);
   auto find_result = images_.find(window_name);
   if(find_result != images_.end()) {
     find_result->second = image;
   } else {
-    images_.emplace(std::make_pair(window_name, image));
+    images_.emplace(window_name, image);
   }
 
 }
@@ -72,14 +73,15 @@ void traact::component::vision::OpenCVModule::thread_loop() {
 
 
     {
-      std::lock_guard lock(data_lock_);
+      //std::lock_guard lock(data_lock_);
       for(const auto& name_image : images_) {
         auto entry = windows_.find(name_image.first);
         if(entry == windows_.end()){
           cv::namedWindow(name_image.first, cv::WINDOW_KEEPRATIO);
           windows_[name_image.first] = true;
         }
-        cv::imshow(name_image.first, name_image.second.GetBuffer()->GetCpuMat());
+        //cv::imshow(name_image.first, name_image.second.GetBuffer()->GetCpuMat());
+          cv::imshow(name_image.first, name_image.second);
       }
       //windows_.clear();
     }
@@ -98,7 +100,7 @@ std::string traact::component::vision::OpenCVComponent::GetModuleKey() {
 traact::component::Module::Ptr traact::component::vision::OpenCVComponent::InstantiateModule() {
   return std::make_shared<OpenCVModule>();
 }
-bool traact::component::vision::OpenCVComponent::init() {
+bool traact::component::vision::OpenCVComponent::configure(const nlohmann::json &parameter, buffer::GenericComponentBuffer &data) {
   opencv_module_ = std::dynamic_pointer_cast<OpenCVModule>(module_);
-  return ModuleComponent::init();
+  return ModuleComponent::configure(parameter, data);
 }

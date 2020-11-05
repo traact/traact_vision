@@ -147,18 +147,8 @@ namespace traact::vision {
 
     };
 
-    class TRAACT_VISION_EXPORT ImageFactoryObject : public buffer::GenericFactoryObject {
-    public:
-        std::string getTypeName() override {
-            return std::move(std::string(ImageHeader::MetaType));
-        }
-        void *createObject(void *) override {
-            return new ImageHeader::NativeType;
-        }
-        void deleteObject(void *obj) override {
-            auto *tmp = static_cast<ImageHeader::NativeType *>(obj);
-            delete tmp;
-        }
+    class TRAACT_VISION_EXPORT ImageFactoryObject : public buffer::TemplatedDefaultFactoryObject<ImageHeader> {
+
 
     };
 

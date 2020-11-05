@@ -30,3 +30,12 @@
 **/
 
 #include "OpenCvWindow.h"
+#include <rttr/registration>
+// It is not possible to place the macro multiple times in one cpp file. When you compile your plugin with the gcc toolchain,
+// make sure you use the compiler option: -fno-gnu-unique. otherwise the unregistration will not work properly.
+RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
+{
+
+    using namespace rttr;
+    registration::class_<traact::component::vision::OpenCvWindow>("OpenCvWindow").constructor<std::string>()();
+}

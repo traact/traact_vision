@@ -31,63 +31,16 @@
 
 #include <rttr/registration>
 #include <rttr/type>
-#include <traact/facade/Plugin.h>
 
 #include "traact/vision.h"
 #include "traact/component/vision/OpenCvVideoCapture.h"
 #include "traact/component/vision/OpenCvWindow.h"
 #include <traact/component/vision/OpenCVUndistortImage.h>
+#include <traact/component/facade/ApplicationAsyncSource.h>
+#include <traact/component/facade/ApplicationSyncSink.h>
 
 namespace traact::vision {
 
-
-class VisionPlugin : public traact::facade::Plugin {
- public:
-  void fillDatatypeNames(std::vector<std::string> &datatype_names) override {
-    datatype_names.emplace_back(ImageHeader::MetaType);
-      datatype_names.emplace_back(CameraCalibrationHeader::MetaType);
-  }
-  buffer::GenericFactoryObject::Ptr instantiateDataType(const std::string &datatype_name) override {
-    if (datatype_name == std::string(ImageHeader::MetaType))
-      return std::make_shared<ImageFactoryObject>();
-      if (datatype_name == std::string(CameraCalibrationHeader::MetaType))
-          return std::make_shared<CameraCalibrationFactoryObject>();
-    return nullptr;
-  }
-
-
-  void fillPatternNames(std::vector<std::string> &pattern_names) override {
-    pattern_names.emplace_back("OpenCvVideoCapture");
-    pattern_names.emplace_back("OpenCvWindow");
-      pattern_names.emplace_back("OpenCVUndistortImage");
-  }
-  pattern::Pattern::Ptr instantiatePattern(const std::string &pattern_name) override {
-    if (pattern_name == "OpenCvVideoCapture")
-      return component::vision::OpenCVVideoCapture::getPattern();
-    if (pattern_name == "OpenCvWindow")
-      return component::vision::OpenCvWindow::getPattern();
-      if (pattern_name == "OpenCVUndistortImage")
-          return component::vision::OpenCVUndistortImage::getPattern();
-
-
-    return nullptr;
-  }
-  component::Component::Ptr instantiateComponent(const std::string &pattern_name,
-                                                 const std::string &new_component_name) override {
-
-    if (pattern_name == "OpenCvVideoCapture")
-      return std::make_shared<component::vision::OpenCVVideoCapture>(new_component_name);
-    if (pattern_name == "OpenCvWindow")
-      return std::make_shared<component::vision::OpenCvWindow>(new_component_name);
-      if (pattern_name == "OpenCVUndistortImage")
-          return std::make_shared<component::vision::OpenCVUndistortImage>(new_component_name);
-
-
-    return nullptr;
-  }
-
-  RTTR_ENABLE(traact::facade::Plugin)
-};
 
 }
 
@@ -96,9 +49,10 @@ class VisionPlugin : public traact::facade::Plugin {
 RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
 {
 
-  using namespace rttr;
-  registration::class_<traact::vision::VisionPlugin>("VisionPlugin").constructor<>()
-      (
-          //policy::ctor::as_std_shared_ptr
-      );
+    using namespace rttr;
+    registration::class_<traact::vision::CameraCalibrationFactoryObject>("CameraCalibrationFactoryObject").constructor<>()();
+    registration::class_<traact::vision::ImageFactoryObject>("ImageFactoryObject").constructor<>()();
+
+    registration::class_<traact::component::facade::ApplicationAsyncSource<traact::vision::ImageHeader> >("ApplicationAsyncSource_Eigen::Affine3d").constructor<std::string>()();
+    registration::class_<traact::component::facade::ApplicationSyncSink<traact::vision::CameraCalibrationHeader> >("ApplicationSyncSink_Eigen::Affine3d").constructor<std::string>()();
 }

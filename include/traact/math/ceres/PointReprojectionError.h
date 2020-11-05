@@ -46,6 +46,7 @@ namespace traact::math {
                 : observed_(observed), calibration_(calibration), observationIndex_(index)
         {
             Eigen::Quaterniond rot(cam2world.rotation());
+            rot = rot ;
             auto pos = cam2world.translation();
             camera[0] = rot.w();
             camera[1] = rot.x();

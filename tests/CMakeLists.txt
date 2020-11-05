@@ -1,7 +1,7 @@
 
 set(TEST_SOURCES
         test_main.cpp
-        test_perspective.cpp test_pose_estimation.cpp test_estimate_3d_point.cpp)
+        test_perspective.cpp test_pose_estimation.cpp test_estimate_3d_point.cpp test_ceres_elements.cpp)
 
 set(CMAKE_CUDA_STANDARD 14)
 

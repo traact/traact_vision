@@ -46,7 +46,7 @@ class OpenCvWindow : public OpenCVComponent {
   OpenCvWindow(const std::string &name)
       : OpenCVComponent(name) {}
 
-  static traact::pattern::Pattern::Ptr getPattern() {
+  traact::pattern::Pattern::Ptr GetPattern() const {
     using namespace traact::vision;
     traact::pattern::spatial::SpatialPattern::Ptr
         pattern =
@@ -59,14 +59,15 @@ class OpenCvWindow : public OpenCVComponent {
 
   bool processTimePoint(traact::DefaultComponentBuffer &data) override {
     using namespace traact::vision;
-    const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
+    //const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
+      const auto input = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
+
 
 	
-    //auto image = input.GetCpuMat();
 
-    //opencv_module_->updateWindow(getName(), image.clone());
-    //opencv_module_->updateWindow(getName(), image);
-    opencv_module_->updateWindow(getName(), input);
+    //opencv_module_->updateWindow(getName(), input);
+    opencv_module_->updateWindow(getName(), input.GetCpuMat().clone());
+
 
 
     return true;
@@ -75,7 +76,7 @@ class OpenCvWindow : public OpenCVComponent {
 
 
 
-
+RTTR_ENABLE(Component, ModuleComponent, OpenCVComponent)
 
 };
 

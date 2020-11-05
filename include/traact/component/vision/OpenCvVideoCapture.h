@@ -46,7 +46,7 @@ class OpenCVVideoCapture : public Component {
     running_ = false;
   }
 
-  static traact::pattern::Pattern::Ptr getPattern() {
+  traact::pattern::Pattern::Ptr GetPattern()  const {
 
 
     traact::pattern::spatial::SpatialPattern::Ptr
@@ -128,6 +128,7 @@ class OpenCVVideoCapture : public Component {
     spdlog::trace("source quit loop");
     running_ = false;
   }
+RTTR_ENABLE(Component)
 };
 
 }

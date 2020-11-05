@@ -50,10 +50,19 @@ void test_pose(const Eigen::Affine3d& marker_pose, const traact::vision::CameraC
     std::vector<Translation3d> marker_corners_local;
     std::vector<Affine3d> marker_corners;
 
+
+    /*
     marker_corners_local.push_back(Translation3d(0.2,0.2,0));
     marker_corners_local.push_back(Translation3d(0.2,-0.2,0));
     marker_corners_local.push_back(Translation3d(-0.2,-0.2,0));
     marker_corners_local.push_back(Translation3d(-0.2,0.2,0));
+*/
+
+
+    marker_corners_local.push_back(Eigen::Translation3d(0,0,0));
+    marker_corners_local.push_back(Eigen::Translation3d(0.384,0,0));
+    marker_corners_local.push_back(Eigen::Translation3d(0,0.114,0));
+    marker_corners_local.push_back(Eigen::Translation3d(0.225,0,0));
 
     std::vector<Vector2d> marker_corners_2d;
     std::vector<Vector3d> marker_model;
@@ -99,16 +108,16 @@ TEST(TraactVisionTestSuite, PoseEstimationTest_NoDistortion) {
 
 
     Affine3d marker_pose;
-    marker_pose = Translation3d(1,2,-3);
-    test_pose(marker_pose, calibration);
+    marker_pose = Translation3d(1,2,3);
+    //test_pose(marker_pose, calibration);
     marker_pose.rotate(AngleAxisd(M_PI, Vector3d::UnitZ()));
-    test_pose(marker_pose, calibration);
+    //test_pose(marker_pose, calibration);
 
-    marker_pose = Translation3d(0.1,0.2,-4) * AngleAxisd(M_PI/16, Vector3d::UnitY());
-    test_pose(marker_pose, calibration);
+    marker_pose = Translation3d(0.1,0.2,4) * AngleAxisd(M_PI/16, Vector3d::UnitY());
+    //test_pose(marker_pose, calibration);
 
-    marker_pose = Translation3d(0.3,-0.5,-2) * AngleAxisd(M_PI/16, Vector3d::UnitX());
-    test_pose(marker_pose, calibration);
+    marker_pose = Translation3d(0.3,-0.5,2) * AngleAxisd(M_PI/16, Vector3d::UnitX());
+    //test_pose(marker_pose, calibration);
 
 
     for(int i=0;i<100;++i) {
@@ -118,10 +127,10 @@ TEST(TraactVisionTestSuite, PoseEstimationTest_NoDistortion) {
         rot.setRandom();
         Quaterniond rotq(rot);
         rotq.normalize();
-        pos.z() += -3;
+        pos.z() += 3;
 
         Affine3d pose = Translation3d (pos) * rotq;
-        test_pose(pose, calibration);
+        //test_pose(pose, calibration);
 
     }
 

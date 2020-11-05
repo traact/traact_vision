@@ -146,7 +146,7 @@ const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<
 
 template TRAACT_VISION_EXPORT vision::ImageHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void *, void*);
 template TRAACT_VISION_EXPORT const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void*, void*);
-    template TRAACT_VISION_EXPORT vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void *, void*);
-    template TRAACT_VISION_EXPORT const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void*, void*);
+template TRAACT_VISION_EXPORT vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void *, void*);
+template TRAACT_VISION_EXPORT const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void*, void*);
 
 }

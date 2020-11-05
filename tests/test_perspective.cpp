@@ -108,10 +108,10 @@ TEST(TraactVisionTestSuite, ReprojectionTest_NoDistortion) {
     {
         std::vector<cv::Point3d> opencv_point;
         std::vector<cv::Point2d> opencv_result;
-        opencv_point.push_back(cv::Point3d(1,1,-1));
-        opencv_point.push_back(cv::Point3d(-1.5,1.2,-2));
-        opencv_point.push_back(cv::Point3d(-1,1.5,-3));
-        opencv_point.push_back(cv::Point3d(1,-2,-4));
+        opencv_point.emplace_back(cv::Point3d(1,1,1));
+        opencv_point.emplace_back(-1.5,1.2,2);
+        opencv_point.emplace_back(cv::Point3d(-1,1.5,3));
+        opencv_point.emplace_back(cv::Point3d(1,-2,4));
 
         cv::projectPoints(opencv_point, rvec, tVec, opencv_intrinsics, opencv_distortion, opencv_result);
 

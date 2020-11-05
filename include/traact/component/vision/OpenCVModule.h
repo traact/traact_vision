@@ -45,15 +45,18 @@ class OpenCVModule : public Module {
   bool stop(ComponentPtr module_component) override;
   bool teardown(ComponentPtr module_component) override;
 
-  void updateWindow(const std::string& window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>& image);
+  //void updateWindow(const std::string& window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>& image);
+  void updateWindow(const std::string& window_name, const cv::Mat& image);
 
  private:
   std::shared_ptr<std::thread> thread_;
   bool running_{false};
   void thread_loop();
-  std::map<std::string, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> > images_;
+  //std::map<std::string, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> > images_;
+  std::map<std::string, cv::Mat > images_;
   std::map<std::string, bool> windows_;
   std::mutex data_lock_;
+  RTTR_ENABLE(Module)
 };
 
 class OpenCVComponent : public ModuleComponent {
@@ -61,9 +64,10 @@ class OpenCVComponent : public ModuleComponent {
   OpenCVComponent(const std::string &name);
   std::string GetModuleKey() override;
   Module::Ptr InstantiateModule() override;
-  bool init() override;
+  bool configure(const nlohmann::json &parameter, buffer::GenericComponentBuffer &data) override;
  protected:
   std::shared_ptr<OpenCVModule> opencv_module_;
+  RTTR_ENABLE(ModuleComponent)
 };
 
 }

@@ -41,11 +41,16 @@ namespace traact::math {
     Eigen::Vector2d reproject_point(const vision::CameraCalibration& intrinsics, const Eigen::Vector3d& point);
     Eigen::Vector2d reproject_point(const Eigen::Affine3d& cam2world, const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3d& point);
 
-    bool estimate_camera_pose(Eigen::Affine3d& pose_result, const std::vector<Eigen::Vector2d>& image_points, const vision::CameraCalibration& intrinsics, const std::vector<Eigen::Vector3d>& model_points);
 
-    bool estimate_3d_point(Eigen::Vector3d& result,  const std::vector<Eigen::Affine3d>& world2camera, const std::vector<vision::CameraCalibration>& intrinsics, const std::vector<Eigen::Vector2d> image_point);
+
+    bool estimate_camera_pose(Eigen::Affine3d& pose_result, const std::vector<Eigen::Vector2d>& image_points, const vision::CameraCalibration& intrinsics, const std::vector<Eigen::Vector3d>& model_points);
+    double average_reprojection_error(const Eigen::Affine3d& cam2world, const std::vector<Eigen::Vector2d>& image_points, const traact::vision::CameraCalibration &intrinsics, const std::vector<Eigen::Vector3d>& model_points);
+
+    bool estimate_3d_point(Eigen::Vector3d& result,  const std::vector<Eigen::Affine3d>& world2camera, const std::vector<vision::CameraCalibration>& intrinsics, const std::vector<Eigen::Vector2d> image_point, double* covariance=0);
 
     Eigen::Matrix<double, 3, 4> create_projection_matrix(const Eigen::Affine3d& cam2world, const vision::CameraCalibration calibration);
+
+    void undistort_points(const vision::CameraCalibration& dis_calibration,const vision::CameraCalibration& undis_calibration, const std::vector<Eigen::Vector2d>& distorted_points, std::vector<Eigen::Vector2d>& undistorted_points);
 }
 
 #endif //TRAACTMULTI_PERSPECTIVE_H

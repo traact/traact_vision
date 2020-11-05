@@ -75,12 +75,12 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
     using namespace Eigen;
     CameraCalibration calibration;
     calibration.width = 640;
-    calibration.height = 480;
-    calibration.fx = 500;
-    calibration.fy = 500;
+    calibration.height = 576;
+    calibration.fx = 345.62296;
+    calibration.fy = 359.71362;
     calibration.skew = 0;
-    calibration.cx = calibration.width / 2.0 - 0.5;
-    calibration.cy = calibration.height / 2.0 - 0.5;
+    calibration.cx = 326.55453;
+    calibration.cy = 349.54202;
 
 
 
@@ -103,11 +103,46 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
         EXPECT_NEAR(marker_pose.translation().z(), p3_result.z(), 1e-9);
     }
 
+    {
+        Affine3d marker_pose;
+        std::vector<Affine3d>  cam_2_world;
+        marker_pose = Translation3d(0.1,-0.5,-3);// * AngleAxisd(M_PI, Vector3d::UnitY());
+
+        {
+            Affine3d pose_c2w;
+            pose_c2w = Translation3d(-2.13208468683971208e+00, -1.20638214730114912e+00, 2.30451254078307244e+00);
+            pose_c2w.rotate(Quaterniond(-8.49694826269651537e-01,-3.46199513669736558e-01, 1.29443829434892799e-01, 3.76043739432868451e-01));
+            cam_2_world.push_back(pose_c2w);
+        }
+
+        {
+            Affine3d pose_c2w;
+            pose_c2w = Translation3d(-2.24341394331049226e+00, 2.91498703341871979e+00, 2.19838501838564992e+00);
+            pose_c2w.rotate(Quaterniond( 4.53584848555412923e-01, 1.66481146382847056e-01, -3.40200132181601056e-01, -8.06727142919858475e-01 ));
+            cam_2_world.push_back(pose_c2w);
+        }
+
+
+
+        std::vector<CameraCalibration> calibrations;
+        for(int i=0;i<cam_2_world.size();++i){
+            calibrations.push_back(calibration);
+        }
+
+        Vector3d p3_result = test_point(cam_2_world, calibrations, marker_pose.translation(), 0);
+        EXPECT_NEAR(marker_pose.translation().x(), p3_result.x(), 1e-9);
+        EXPECT_NEAR(marker_pose.translation().y(), p3_result.y(), 1e-9);
+        EXPECT_NEAR(marker_pose.translation().z(), p3_result.z(), 1e-9);
+    }
+
+
+
 
 
 
 }
 
+/*
 TEST(TraactVisionTestSuite, Estimate3dPointTestNoise_NoDistortion) {
     using namespace traact::math;
     using namespace traact::vision;
@@ -163,7 +198,7 @@ TEST(TraactVisionTestSuite, Estimate3dPointTestNoise_NoDistortion) {
         cam_2_world.push_back(world_2_cam[i].inverse());
     }
 
-    for(int i=0;i<100;++i) {
+    for(int i=0;i<11;++i) {
         double noise = 10.0/100.0 * i;
 
         double sum=0;
@@ -180,3 +215,4 @@ TEST(TraactVisionTestSuite, Estimate3dPointTestNoise_NoDistortion) {
 
 
 }
+ */
