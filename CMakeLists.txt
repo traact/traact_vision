@@ -10,7 +10,6 @@ set(LIB_HEADERS include/traact/vision.h include/traact/traact_vision_export.h
         include/traact/component/vision/BasicVisionPattern.h)
 
 set(PLUGIN_HEADERS
-        include/traact/component/vision/OpenCvVideoCapture.h
         )
 
 
@@ -18,7 +17,7 @@ set(PLUGIN_HEADERS
 set(LIB_SOURCES src/vision.cpp include/traact/math/perspective.cpp include/traact/math/perspective.h include/traact/vision_datatypes.h include/traact/opencv/OpenCVUtils.h include/traact/math/ceres/PointReprojectionError.h include/traact/math/utils.h include/traact/vision/UndistortionHelper.cpp include/traact/vision/UndistortionHelper.h)
 
 set(PLUGIN_SOURCES src/VisionPlugin.cpp include/traact/component/vision/OpenCVModule.h include/traact/component/vision/OpenCVModule.cpp
-        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCvWindow.h include/traact/component/vision/OpenCVUndistortImage.cpp include/traact/component/vision/OpenCVUndistortImage.h)
+        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCVUndistortImage.cpp include/traact/component/vision/SyncOpenCvMultiWindow.cpp include/traact/component/vision/OpenCvConvertImage.cpp include/traact/component/tracking/CircleTracking.cpp include/traact/vision/SubPixelEdgeDectection.h include/traact/component/vision/OpenCvPaint2DPositionList.cpp include/traact/component/tracking/EstimatePose.cpp include/traact/component/vision/DebugWindow.cpp)
 
 
 # conan is required hard, library name, version and description are configured from conan

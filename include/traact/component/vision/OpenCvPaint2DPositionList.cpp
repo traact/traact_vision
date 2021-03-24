@@ -30,8 +30,7 @@
 **/
 
 #include <traact/traact.h>
-#include <traact/vision.h>
-#include <opencv2/highgui.hpp>
+#include <traact/spatial.h>
 #include <traact/component/vision/OpenCVModule.h>
 #include <rttr/registration>
 
@@ -39,50 +38,45 @@ namespace traact::component::vision {
 
 
 
-    class OpenCvWindow : public OpenCVComponent {
+    class OpenCvPaint2DPositionList : public OpenCVComponent {
     public:
-        OpenCvWindow(const std::string &name)
+        OpenCvPaint2DPositionList(const std::string &name)
                 : OpenCVComponent(name) {}
 
         traact::pattern::Pattern::Ptr GetPattern() const {
             using namespace traact::vision;
             traact::pattern::spatial::SpatialPattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvWindow", serial);
+                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvPaint2DPositionList", serial);
 
-            pattern->addConsumerPort("input", ImageHeader::MetaType);
+            pattern->addConsumerPort("input", spatial::Position2DListHeader::MetaType);
+            pattern->addStringParameter("window", "sink");
 
             return pattern;
         }
 
         bool configure(const nlohmann::json &parameter, buffer::GenericComponentBufferConfig *data) override {
             OpenCVComponent::configure(parameter, data);
-            opencv_module_->addWindow(getName());
+            pattern::setValueFromParameter(parameter, "window", window_name_, "sink");
             return true;
         }
 
         bool start() override {
-            start_ts_ = now();
+
             return ModuleComponent::start();
         }
 
         bool processTimePoint(traact::DefaultComponentBuffer &data) override {
             using namespace traact::vision;
-            const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
+            const auto input = data.borrowInput<spatial::Position2DListHeader::NativeType, spatial::Position2DListHeader>(0);
             //  const auto input = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
 
 
 
 
-
-            opencv_module_->updateWindow(getName(), data.GetMeaIdx(), input);
+            opencv_module_->updateWindow(window_name_, input, data.getTimestamp().time_since_epoch().count());
             //opencv_module_->updateWindow(getName(), input.GetCpuMat().clone());
 
-            counter++;
-            using nanoMilliseconds = std::chrono::duration<float, std::milli>;
-            TimeDurationType time_diff = now() - start_ts_;
-            float seconds = nanoMilliseconds(time_diff).count() / 1000.0;
-            SPDLOG_INFO("{0} avg fps: {1}", getName(), counter/seconds);
 
 
             return true;
@@ -90,12 +84,10 @@ namespace traact::component::vision {
         }
 
         void invalidTimePoint(TimestampType ts, std::size_t mea_idx) override {
-            counter++;
-            //opencv_module_->updateWindow(getName(), mea_idx, nullptr);
+            //opencv_module_->updateWindow(window_name_, nullptr);
         }
 
-        size_t counter{0};
-        TimestampType start_ts_;
+        std::string window_name_;
 
 
 
@@ -114,5 +106,5 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
 {
 
     using namespace rttr;
-    registration::class_<traact::component::vision::OpenCvWindow>("OpenCvWindow").constructor<std::string>()();
+    registration::class_<traact::component::vision::OpenCvPaint2DPositionList>("OpenCvPaint2DPositionList").constructor<std::string>()();
 }

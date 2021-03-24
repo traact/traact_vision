@@ -33,9 +33,6 @@
 #include <rttr/type>
 
 #include "traact/vision.h"
-#include "traact/component/vision/OpenCvVideoCapture.h"
-#include "traact/component/vision/OpenCvWindow.h"
-#include <traact/component/vision/OpenCVUndistortImage.h>
 #include <traact/component/facade/ApplicationAsyncSource.h>
 #include <traact/component/facade/ApplicationSyncSink.h>
 
@@ -53,6 +50,6 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
     registration::class_<traact::vision::CameraCalibrationFactoryObject>("CameraCalibrationFactoryObject").constructor<>()();
     registration::class_<traact::vision::ImageFactoryObject>("ImageFactoryObject").constructor<>()();
 
-    registration::class_<traact::component::facade::ApplicationAsyncSource<traact::vision::ImageHeader> >("ApplicationAsyncSource_Eigen::Affine3d").constructor<std::string>()();
-    registration::class_<traact::component::facade::ApplicationSyncSink<traact::vision::CameraCalibrationHeader> >("ApplicationSyncSink_Eigen::Affine3d").constructor<std::string>()();
+    registration::class_<traact::component::facade::ApplicationAsyncSource<traact::vision::ImageHeader> >("ApplicationAsyncSource_ImageHeader").constructor<std::string>()();
+    registration::class_<traact::component::facade::ApplicationSyncSink<traact::vision::CameraCalibrationHeader> >("ApplicationSyncSink_CameraCalibrationHeader").constructor<std::string>()();
 }

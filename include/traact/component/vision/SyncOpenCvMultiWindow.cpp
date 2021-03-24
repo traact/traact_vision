@@ -29,6 +29,7 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
+
 #include <traact/traact.h>
 #include <traact/vision.h>
 #include <opencv2/highgui.hpp>
@@ -39,16 +40,16 @@ namespace traact::component::vision {
 
 
 
-    class OpenCvWindow : public OpenCVComponent {
+    class SyncOpenCvMultiWindow : public OpenCVComponent {
     public:
-        OpenCvWindow(const std::string &name)
+        SyncOpenCvMultiWindow(const std::string &name)
                 : OpenCVComponent(name) {}
 
         traact::pattern::Pattern::Ptr GetPattern() const {
             using namespace traact::vision;
             traact::pattern::spatial::SpatialPattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvWindow", serial);
+                    std::make_shared<traact::pattern::spatial::SpatialPattern>("SyncOpenCvMultiWindow", serial);
 
             pattern->addConsumerPort("input", ImageHeader::MetaType);
 
@@ -57,9 +58,14 @@ namespace traact::component::vision {
 
         bool configure(const nlohmann::json &parameter, buffer::GenericComponentBufferConfig *data) override {
             OpenCVComponent::configure(parameter, data);
-            opencv_module_->addWindow(getName());
+
+            input_count = 4;
+            for(int i = 0; i < input_count; ++i){
+                opencv_module_->addWindow(getName() + "_" + std::to_string(i+1));
+            }
             return true;
         }
+
 
         bool start() override {
             start_ts_ = now();
@@ -68,15 +74,13 @@ namespace traact::component::vision {
 
         bool processTimePoint(traact::DefaultComponentBuffer &data) override {
             using namespace traact::vision;
-            const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
-            //  const auto input = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
+            SPDLOG_DEBUG("multi window {0} ", getName());
+            auto inputCount = data.GetInputCount();
+            for(int i = 0; i < inputCount; ++i){
+                const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(i);
+                opencv_module_->updateWindow(getName() + "_" + std::to_string(i + 1), data.getTimestamp().time_since_epoch().count(), input);
+            }
 
-
-
-
-
-            opencv_module_->updateWindow(getName(), data.GetMeaIdx(), input);
-            //opencv_module_->updateWindow(getName(), input.GetCpuMat().clone());
 
             counter++;
             using nanoMilliseconds = std::chrono::duration<float, std::milli>;
@@ -91,19 +95,21 @@ namespace traact::component::vision {
 
         void invalidTimePoint(TimestampType ts, std::size_t mea_idx) override {
             counter++;
-            //opencv_module_->updateWindow(getName(), mea_idx, nullptr);
+            for(int i = 0; i < input_count; ++i){
+                //opencv_module_->updateWindow(getName() + "_" + std::to_string(i+1), nullptr);
+            }
+
         }
 
         size_t counter{0};
         TimestampType start_ts_;
+        int input_count;
 
 
 
     RTTR_ENABLE(Component, ModuleComponent, OpenCVComponent)
 
     };
-
-
 
 }
 
@@ -114,5 +120,5 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
 {
 
     using namespace rttr;
-    registration::class_<traact::component::vision::OpenCvWindow>("OpenCvWindow").constructor<std::string>()();
+    registration::class_<traact::component::vision::SyncOpenCvMultiWindow>("SyncOpenCvMultiWindow").constructor<std::string>()();
 }

@@ -31,7 +31,7 @@
 
 
 #include "gtest/gtest.h"
-#include "spdlog/spdlog.h"
+#include <traact/util/Logging.h>
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 #include <traact/math/perspective.h>

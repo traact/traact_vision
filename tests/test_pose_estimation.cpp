@@ -30,7 +30,7 @@
 **/
 
 #include "gtest/gtest.h"
-#include "spdlog/spdlog.h"
+#include <traact/util/Logging.h>
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 #include <traact/math/perspective.h>
@@ -64,8 +64,8 @@ void test_pose(const Eigen::Affine3d& marker_pose, const traact::vision::CameraC
     marker_corners_local.push_back(Eigen::Translation3d(0,0.114,0));
     marker_corners_local.push_back(Eigen::Translation3d(0.225,0,0));
 
-    std::vector<Vector2d> marker_corners_2d;
-    std::vector<Vector3d> marker_model;
+    traact::spatial::Position2DList marker_corners_2d;
+    traact::spatial::Position3DList marker_model;
     // project marker corners to 2d
     for(int i=0;i<marker_corners_local.size();++i) {
         marker_corners.push_back(marker_pose * marker_corners_local[i]);

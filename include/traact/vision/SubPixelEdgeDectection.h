@@ -29,57 +29,47 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
+#ifndef TRAACTMULTI_SUBPIXELEDGEDECTECTION_H
+#define TRAACTMULTI_SUBPIXELEDGEDECTECTION_H
 
-#include <traact/traact.h>
-#include <traact/vision.h>
-#include <opencv2/highgui.hpp>
-#include <traact/component/vision/OpenCVModule.h>
+namespace traact::vision {
+    template<class T> class SubPixelEdgeDectection
+    {
+    public:
+        virtual ~SubPixelEdgeDectection() {};
+        virtual double findEdge(T* startInImage, const int positionIncrement, T threshold, const int maxDistance) = 0;
+    };
 
-namespace traact::component::vision {
-
-
-
-class OpenCvWindow : public OpenCVComponent {
- public:
-  OpenCvWindow(const std::string &name)
-      : OpenCVComponent(name) {}
-
-  traact::pattern::Pattern::Ptr GetPattern() const {
-    using namespace traact::vision;
-    traact::pattern::spatial::SpatialPattern::Ptr
-        pattern =
-        std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvWindow", serial);
-
-    pattern->addConsumerPort("input", ImageHeader::MetaType);
-
-    return pattern;
-  }
-
-  bool processTimePoint(traact::DefaultComponentBuffer &data) override {
-    using namespace traact::vision;
-    //const auto input = data.borrowInput<ImageHeader::NativeType, ImageHeader>(0);
-      const auto input = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
-
-
-	
-
-    //opencv_module_->updateWindow(getName(), input);
-    opencv_module_->updateWindow(getName(), input.GetCpuMat().clone());
+    template<class T> class ThresholdSubPixelEdgeDectection
+    {
+    public:
+        ~ThresholdSubPixelEdgeDectection() {};
+        double findEdge(T* startInImage, const int positionIncrement, T threshold, const int maxDistance) {
 
 
 
-    return true;
+            for(int i=0;i<maxDistance; ++i)
+            {
+                int imageIndex = i * positionIncrement;
 
-  }
+                if(startInImage[imageIndex] < threshold)
+                {
+                    if(i == 0) return 0;
 
+                    int prevIndex = imageIndex - positionIncrement;
 
+                    T prevvalue = startInImage[prevIndex];
+                    T value = startInImage[imageIndex];
 
-RTTR_ENABLE(Component, ModuleComponent, OpenCVComponent)
+                    double delta = static_cast<double>(prevvalue - threshold) / static_cast<double>(prevvalue - value);
 
-};
+                    return static_cast<double>(i)+delta;
+                }
+            }
 
+            return 0;
+        }
+    };
 }
 
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_OPENCVWINDOW_H_
+#endif //TRAACTMULTI_SUBPIXELEDGEDECTECTION_H

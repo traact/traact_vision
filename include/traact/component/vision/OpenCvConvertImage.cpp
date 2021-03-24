@@ -29,22 +29,20 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#ifndef TRAACTMULTI_OPENCVUNDISTORTIMAGE_H
-#define TRAACTMULTI_OPENCVUNDISTORTIMAGE_H
+#include <rttr/registration>
 
 
 #include <traact/traact.h>
 #include <traact/vision.h>
 #include <opencv2/videoio.hpp>
 #include <traact/component/vision/BasicVisionPattern.h>
-#include <traact/vision/UndistortionHelper.h>
 
 namespace traact::component::vision {
 
-    class OpenCVUndistortImage : public Component {
+    class OpenCvConvertImage : public Component {
     public:
-        explicit OpenCVUndistortImage(const std::string &name) : Component(name,
-                                                                         traact::component::ComponentType::Functional) {
+        explicit OpenCvConvertImage(const std::string &name) : Component(name,
+                                                                           traact::component::ComponentType::Functional) {
         }
 
         traact::pattern::Pattern::Ptr GetPattern()  const {
@@ -52,35 +50,40 @@ namespace traact::component::vision {
 
             traact::pattern::spatial::SpatialPattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCVUndistortImage", serial);
+                    std::make_shared<traact::pattern::spatial::SpatialPattern>("OpenCvConvertImage", serial);
 
-            pattern->addConsumerPort("input_image", traact::vision::ImageHeader::MetaType);
-            pattern->addConsumerPort("input_calibration", traact::vision::CameraCalibrationHeader::MetaType);
+            pattern->addConsumerPort("input", traact::vision::ImageHeader::MetaType);
             pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
+
+            pattern->addParameter("irToGray", 6000.0);
+
 
             pattern->addCoordianteSystem("ImagePlane")
                     .addCoordianteSystem("Image", true)
-                    .addEdge("ImagePlane", "Image", "input_image")
-                    .addEdge("ImagePlane", "Image", "input_calibration")
+                    .addEdge("ImagePlane", "Image", "input")
                     .addEdge("ImagePlane", "Image", "output");
 
             return pattern;
         }
 
+        bool configure(const nlohmann::json &parameter, buffer::GenericComponentBufferConfig *data) override {
+            pattern::setValueFromParameter(parameter, "irToGray", ir_to_gray_, 6000.0);
+            return true;
+        }
+
         bool processTimePoint(buffer::GenericComponentBuffer &data) override {
             using namespace traact::vision;
             const auto& image = data.getInput<ImageHeader::NativeType, ImageHeader>(0);
-            const auto& calibration = data.getInput<CameraCalibrationHeader::NativeType, CameraCalibrationHeader>(1);
             auto& output = data.getOutput<ImageHeader::NativeType, ImageHeader>(0);
 
-            undistorter_.Init(calibration, false, true, 0);
+            image.GetCpuMat().convertTo(output.GetCpuMat(), CV_MAKETYPE(CV_MAT_DEPTH(CV_8UC1), 1), 255. / ir_to_gray_);
 
-            return undistorter_.UndistortImage(image, output);
+            return true;
         }
 
 
     private:
-        ::traact::vision::UndistortionHelper undistorter_;
+        double ir_to_gray_;
 
     RTTR_ENABLE(Component)
 
@@ -90,5 +93,11 @@ namespace traact::component::vision {
 
 
 
+// It is not possible to place the macro multiple times in one cpp file. When you compile your plugin with the gcc toolchain,
+// make sure you use the compiler option: -fno-gnu-unique. otherwise the unregistration will not work properly.
+RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
+{
 
-#endif //TRAACTMULTI_OPENCVUNDISTORTIMAGE_H
+    using namespace rttr;
+    registration::class_<traact::component::vision::OpenCvConvertImage>("OpenCvConvertImage").constructor<std::string>()();
+}

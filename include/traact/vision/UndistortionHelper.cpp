@@ -31,12 +31,12 @@
 
 #include "UndistortionHelper.h"
 #include <traact/opencv/OpenCVUtils.h>
-#include <spdlog/spdlog.h>
+#include <traact/util/Logging.h>
 void
 traact::vision::UndistortionHelper::Init(const traact::vision::CameraCalibration &calibration, bool optimize_intrinsics,
                                          bool center_principle_point, double alpha) {
 
-    // init is not thread safe while the undistortion is
+    // Init is not thread safe while the undistortion is
     std::lock_guard init_guard(init_mutex_);
     if(distorted_calibration_ == calibration)
         return;

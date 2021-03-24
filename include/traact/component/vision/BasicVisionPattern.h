@@ -61,7 +61,7 @@ static traact::pattern::spatial::SpatialPattern::Ptr getCameraPattern() {
   traact::pattern::spatial::SpatialPattern::Ptr
       pattern = getUncalibratedCameraPattern();
 
-  pattern->addProducerPort("calibration", traact::vision::CameraCalibrationHeader::MetaType);
+  pattern->addProducerPort("output_calibration", traact::vision::CameraCalibrationHeader::MetaType);
 
   pattern->addCoordianteSystem("Camera")
       .addEdge("ImagePlane", "Camera", "intrinsic");

@@ -132,7 +132,7 @@ namespace traact::vision {
         void SetCpuMat(cv::Mat& image);
         const cv::cuda::GpuMat &GetGpuMat() const;
 
-        cv::Mat &&GetCpuCopy() const;
+        cv::Mat GetCpuCopy() const;
 
 
         ImageHeader GetHeader() const;

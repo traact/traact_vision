@@ -36,6 +36,7 @@
 #include <traact/datatypes.h>
 
 #include <traact/math/utils.h>
+#include <traact/spatial.h>
 
 namespace traact::math {
     Eigen::Vector2d reproject_point(const vision::CameraCalibration& intrinsics, const Eigen::Vector3d& point);
@@ -43,8 +44,8 @@ namespace traact::math {
 
 
 
-    bool estimate_camera_pose(Eigen::Affine3d& pose_result, const std::vector<Eigen::Vector2d>& image_points, const vision::CameraCalibration& intrinsics, const std::vector<Eigen::Vector3d>& model_points);
-    double average_reprojection_error(const Eigen::Affine3d& cam2world, const std::vector<Eigen::Vector2d>& image_points, const traact::vision::CameraCalibration &intrinsics, const std::vector<Eigen::Vector3d>& model_points);
+    bool estimate_camera_pose(spatial::Pose6D &pose_result, const spatial::Position2DList &image_points, const vision::CameraCalibration& intrinsics, const spatial::Position3DList &model_points);
+    double average_reprojection_error(const Eigen::Affine3d& cam2world, const spatial::Position2DList &image_points, const traact::vision::CameraCalibration &intrinsics, const spatial::Position3DList &model_points);
 
     bool estimate_3d_point(Eigen::Vector3d& result,  const std::vector<Eigen::Affine3d>& world2camera, const std::vector<vision::CameraCalibration>& intrinsics, const std::vector<Eigen::Vector2d> image_point, double* covariance=0);
 

@@ -32,7 +32,7 @@
 #include "perspective.h"
 #include <opencv2/core/eigen.hpp>
 #include <traact/opencv/OpenCVUtils.h>
-#include <spdlog/spdlog.h>
+#include <traact/util/Logging.h>
 #include <opencv2/calib3d.hpp>
 
 #include <ceres/ceres.h>
@@ -66,9 +66,9 @@ traact::math::reproject_point(const Eigen::Affine3d& cam2world, const traact::vi
     return reproject_point(intrinsics, p_tmp);
 }
 
-bool traact::math::estimate_camera_pose(Eigen::Affine3d &pose_result, const std::vector<Eigen::Vector2d> &image_points,
+bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const spatial::Position2DList &image_points,
                                         const traact::vision::CameraCalibration &intrinsics,
-                                        const std::vector<Eigen::Vector3d> &model_points) {
+                                        const spatial::Position3DList &model_points) {
 
     if(image_points.size() != model_points.size()) {
         SPDLOG_ERROR("size of image and model points differ");
@@ -92,6 +92,8 @@ bool traact::math::estimate_camera_pose(Eigen::Affine3d &pose_result, const std:
     }
 
     bool result = cv::solvePnP(model_points_opencv, image_points_opencv, opencv_intrinsics, opencv_distortion, rvec, tvec, false, cv::SOLVEPNP_ITERATIVE  );
+    //bool result = cv::solvePnP(model_points_opencv, image_points_opencv, opencv_intrinsics, opencv_distortion, rvec, tvec, false, cv::SOLVEPNP_P3P  );
+
 
 
 
@@ -253,9 +255,9 @@ void traact::math::undistort_points(const vision::CameraCalibration& dis_calibra
 }
 
 double traact::math::average_reprojection_error(const Eigen::Affine3d &cam2world,
-                                                const std::vector<Eigen::Vector2d> &image_points,
+                                                const spatial::Position2DList &image_points,
                                                 const traact::vision::CameraCalibration &intrinsics,
-                                                const std::vector<Eigen::Vector3d> &model_points) {
+                                                const spatial::Position3DList &model_points) {
     double error = 0;
     for(int i=0;i<image_points.size();++i) {
         auto reprojected_point = reproject_point(cam2world,intrinsics, model_points[i]);

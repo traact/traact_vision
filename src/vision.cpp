@@ -72,12 +72,13 @@ traact::vision::ImageHeader traact::vision::Image::GetHeader() const {
 bool traact::vision::Image::init(traact::vision::ImageHeader header) {
 
 
-  if(is_cpu_)
+  //if(is_cpu_)
+  is_cpu_ = true;
     cpu_mat_ = cv::Mat(header.height, header.width, header.opencv_matrix_type, header.opencv_step);
-  if(is_gpu_){
-    cv::cuda::setDevice(header.device_id);
-    gpu_mat_ = cv::cuda::GpuMat(header.height, header.width, header.opencv_matrix_type, header.opencv_step);
-  }
+  //if(is_gpu_){
+  //  cv::cuda::setDevice(header.device_id);
+   // gpu_mat_ = cv::cuda::GpuMat(header.height, header.width, header.opencv_matrix_type, header.opencv_step);
+  //}
 
   header_ = std::move(header);
   return true;
@@ -94,20 +95,19 @@ const cv::Mat &traact::vision::Image::GetCpuMat() const {
 const cv::cuda::GpuMat &traact::vision::Image::GetGpuMat() const {
   return gpu_mat_;
 }
-cv::Mat &&traact::vision::Image::GetCpuCopy() const {
+cv::Mat traact::vision::Image::GetCpuCopy() const {
   if(is_cpu_) {
-    cv::Mat result = cpu_mat_.clone();
-    return std::move(result);
+    return cpu_mat_.clone();
   }
 
   if(is_gpu_) {
     cv::Mat result;
     cv::cuda::setDevice(header_.device_id);
     gpu_mat_.download(result);
-    return std::move(result);
+    return result;
   }
   assert("image is not initialized");
-  return std::move(cv::Mat());
+  return cv::Mat();
 }
 void traact::vision::Image::SetCpuMat(cv::Mat &image) {
   cpu_mat_ = image;

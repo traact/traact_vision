@@ -34,8 +34,12 @@
 
 #include <traact/traact.h>
 #include <traact/vision.h>
+#include <traact/spatial.h>
 #include <opencv2/highgui.hpp>
 #include <map>
+#include <queue>
+#include <traact/util/Semaphore.h>
+
 namespace traact::component::vision {
 class OpenCVModule : public Module {
  public:
@@ -45,17 +49,30 @@ class OpenCVModule : public Module {
   bool stop(ComponentPtr module_component) override;
   bool teardown(ComponentPtr module_component) override;
 
-  //void updateWindow(const std::string& window_name, const buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>& image);
-  void updateWindow(const std::string& window_name, const cv::Mat& image);
+  void addWindow(std::string window_name);
+  void updateWindow(const std::string &window_name, std::size_t mea_idx,
+                    buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>::Ptr image);
+  void updateWindow(const std::string &window_name,
+                    buffer::BorrowedBuffer<::traact::spatial::Position2DListHeader::NativeType>::Ptr image,
+                    std::size_t mea_idx);
+
+  //void updateWindow(const std::string& window_name, const cv::Mat& image);
 
  private:
   std::shared_ptr<std::thread> thread_;
   bool running_{false};
   void thread_loop();
-  //std::map<std::string, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType> > images_;
-  std::map<std::string, cv::Mat > images_;
-  std::map<std::string, bool> windows_;
-  std::mutex data_lock_;
+  //std::map<std::string, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>::Ptr > images_;
+  std::map<std::string,  std::map<std::size_t, buffer::BorrowedBuffer<::traact::vision::ImageHeader::NativeType>::Ptr > > images_;
+  std::map<std::string,  std::map<std::size_t, buffer::BorrowedBuffer<::traact::spatial::Position2DListHeader::NativeType>::Ptr > > points_;
+  //std::map<std::string, cv::Mat > images_;
+  std::list<std::string> windows_;
+    std::map<std::string, bool> has_window_;
+  std::map<std::string, std::size_t> draw_count_;
+  tbb::queuing_mutex data_lock_;
+    tbb::queuing_mutex running_lock_;
+  WaitForInit init_lock_;
+  cv::Mat invalid_image_;
   RTTR_ENABLE(Module)
 };
 
@@ -64,7 +81,7 @@ class OpenCVComponent : public ModuleComponent {
   OpenCVComponent(const std::string &name);
   std::string GetModuleKey() override;
   Module::Ptr InstantiateModule() override;
-  bool configure(const nlohmann::json &parameter, buffer::GenericComponentBuffer &data) override;
+  bool configure(const nlohmann::json &parameter, buffer::GenericComponentBufferConfig *data) override;
  protected:
   std::shared_ptr<OpenCVModule> opencv_module_;
   RTTR_ENABLE(ModuleComponent)
