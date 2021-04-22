@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 # public header
 set(LIB_HEADERS include/traact/vision.h include/traact/traact_vision_export.h
-        include/traact/component/vision/BasicVisionPattern.h)
+        include/traact/component/vision/BasicVisionPattern.h
+        include/traact/vision/SubPixelEdgeDectection.h)
 
 set(PLUGIN_HEADERS
         )
@@ -16,8 +17,8 @@ set(PLUGIN_HEADERS
 # rest of source code
 set(LIB_SOURCES src/vision.cpp include/traact/math/perspective.cpp include/traact/math/perspective.h include/traact/vision_datatypes.h include/traact/opencv/OpenCVUtils.h include/traact/math/ceres/PointReprojectionError.h include/traact/math/utils.h include/traact/vision/UndistortionHelper.cpp include/traact/vision/UndistortionHelper.h)
 
-set(PLUGIN_SOURCES src/VisionPlugin.cpp include/traact/component/vision/OpenCVModule.h include/traact/component/vision/OpenCVModule.cpp
-        include/traact/component/vision/OpenCvVideoCapture.cpp include/traact/component/vision/OpenCvWindow.cpp include/traact/component/vision/OpenCVUndistortImage.cpp include/traact/component/vision/SyncOpenCvMultiWindow.cpp include/traact/component/vision/OpenCvConvertImage.cpp include/traact/component/tracking/CircleTracking.cpp include/traact/vision/SubPixelEdgeDectection.h include/traact/component/vision/OpenCvPaint2DPositionList.cpp include/traact/component/tracking/EstimatePose.cpp include/traact/component/vision/DebugWindow.cpp)
+set(PLUGIN_SOURCES
+        )
 
 
 # conan is required hard, library name, version and description are configured from conan
@@ -95,8 +96,13 @@ IF (NOT WIN32)
 ENDIF (NOT WIN32)
 
 install(TARGETS ${CONAN_PACKAGE_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/traact" # source directory
+        DESTINATION "include" # target directory
+        FILES_MATCHING # install only matched files
+        PATTERN "*.h" # select header files
+        )
 
 
 

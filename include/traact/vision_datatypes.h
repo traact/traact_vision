@@ -32,12 +32,13 @@
 #ifndef TRAACTMULTI_VISION_DATATYPES_H
 #define TRAACTMULTI_VISION_DATATYPES_H
 
-#include <traact/buffer/GenericFactoryObject.h>
-#include <traact/buffer/GenericBufferTypeConversion.h>
+#include <traact/buffer/BufferFactory.h>
+#include <traact/buffer/BufferTypeConversion.h>
 #include <traact/datatypes.h>
 #include <opencv2/core.hpp>
 #include <opencv2/core/cuda.hpp>
 #include <traact/traact_vision_export.h>
+#include <ostream>
 
 namespace traact::vision {
 
@@ -100,6 +101,37 @@ namespace traact::vision {
 
         bool operator!=(const CameraCalibration &rhs) const {
             return !(rhs == *this);
+        }
+
+        friend std::ostream &operator<<(std::ostream &os, const CameraCalibration &calibration) {
+            os  << "width: " << calibration.width << " height: " << calibration.height << std::endl
+                << " fx: " << calibration.fx << " fy: " << calibration.fy << std::endl
+                << " cx: " << calibration.cx << " cy: " << calibration.cy << std::endl
+                << " skew: " << calibration.skew << std::endl;
+
+            if(calibration.radial_distortion.empty()) {
+                os << " radial distortion: ";
+                for(auto r : calibration.radial_distortion){
+                    os << r << " ";
+                }
+                os << std::endl;
+            } else {
+                os << "no radial distortion "<< std::endl;
+            }
+
+            if(calibration.tangential_distortion.empty()) {
+                os << "no tangential distortion "<< std::endl;
+
+            } else {
+                os << " tangential distortion: ";//
+                for(auto r : calibration.tangential_distortion){
+                    os << r << " ";
+                }
+            }
+
+
+
+            return os;
         }
 
 

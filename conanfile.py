@@ -29,13 +29,11 @@ class Traact(ConanFile):
 
     exports_sources = "include/*", "src/*", "tests/*", "CMakeLists.txt"
 
-    def requirements(self):        
-        self.requires("traact_facade/%s@camposs/stable" % self.version)
-        self.requires("traact_spatial/%s@camposs/stable" % self.version)
+    def requirements(self):
 
-        self.requires("vtk/8.2.0-r4@camposs/stable")
-        self.requires("opencv/3.4.8@camposs/stable")
-        self.requires("ceres/1.14.0-r4@camposs/stable")
+        self.requires("cuda_dev_config/[1.1]@camposs/stable")    
+        self.requires("traact_spatial/%s@camposs/stable" % self.version)
+        self.requires("opencv/4.5.0@camposs/stable")
 
 
         if self.options.with_tests:
@@ -62,11 +60,13 @@ class Traact(ConanFile):
         self.options['opencv'].shared = self.options.shared
 
         self.options['opencv'].with_cuda = True
+
+        if self.settings.os == "Linux":
+            self.options['opencv'].with_gtk = True
+
         #self.options['opencv'].with_tbb = True
         
-        #self.options['opencv'].with_qt = False
-        #self.options['opencv'].with_viz = True        
-        #self.options['opencv'].with_gtk = True
+
 
     def build(self):
         cmake = self._configure_cmake()
@@ -77,6 +77,6 @@ class Traact(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["traact_vision"]
+        self.cpp_info.libs = [self.name]
         #self.cpp_info.libs = tools.collect_libs(self)
 

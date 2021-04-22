@@ -172,7 +172,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,  const std::vector
 
     for (int i = 0; i < image_point.size(); ++i) {
 
-       double* tmp = 0;//measurement_for_observation(i);
+       //double* tmp = 0;//measurement_for_observation(i);
        // all are single 3d points
             ceres::CostFunction* cost_function =
                     PointReprojectionError::Create(image_point[i], cam2world[i], intrinsics[i],i);
@@ -189,6 +189,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,  const std::vector
 
 
     ceres::Solver::Options options;
+    options.logging_type = ceres::SILENT;
     //options.linear_solver_type = ceres::LinearSolverType::DENSE_QR;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);

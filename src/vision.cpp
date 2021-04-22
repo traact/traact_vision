@@ -117,36 +117,36 @@ void traact::vision::Image::SetCpuMat(cv::Mat &image) {
 
 namespace traact::buffer {
 template<>
-vision::ImageHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::ImageHeader::NativeType,
+vision::ImageHeader::NativeType &BufferTypeConversion::asMutable<vision::ImageHeader::NativeType,
                                                                         vision::ImageHeader>(void *obj,
                                                                                                  void *header) {
   return *static_cast<vision::ImageHeader::NativeType *>(obj);
 }
 
 template<>
-const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::ImageHeader::NativeType,
+const vision::ImageHeader::NativeType &BufferTypeConversion::asImmutable<vision::ImageHeader::NativeType,
                                                                                 vision::ImageHeader>(void *obj,
                                                                                                          void *header) {
   return *static_cast<vision::ImageHeader::NativeType *>(obj);
 }
 
     template<>
-    vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType,
+    vision::CameraCalibrationHeader::NativeType &BufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType,
             vision::CameraCalibrationHeader>(void *obj,
                                  void *header) {
         return *static_cast<vision::CameraCalibrationHeader::NativeType *>(obj);
     }
 
     template<>
-    const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType,
+    const vision::CameraCalibrationHeader::NativeType &BufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType,
             vision::CameraCalibrationHeader>(void *obj,
                                  void *header) {
         return *static_cast<vision::CameraCalibrationHeader::NativeType *>(obj);
     }
 
-template TRAACT_VISION_EXPORT vision::ImageHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void *, void*);
-template TRAACT_VISION_EXPORT const vision::ImageHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void*, void*);
-template TRAACT_VISION_EXPORT vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void *, void*);
-template TRAACT_VISION_EXPORT const vision::CameraCalibrationHeader::NativeType &GenericBufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void*, void*);
+template TRAACT_VISION_EXPORT vision::ImageHeader::NativeType &BufferTypeConversion::asMutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void *, void*);
+template TRAACT_VISION_EXPORT const vision::ImageHeader::NativeType &BufferTypeConversion::asImmutable<vision::ImageHeader::NativeType, vision::ImageHeader>(void*, void*);
+template TRAACT_VISION_EXPORT vision::CameraCalibrationHeader::NativeType &BufferTypeConversion::asMutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void *, void*);
+template TRAACT_VISION_EXPORT const vision::CameraCalibrationHeader::NativeType &BufferTypeConversion::asImmutable<vision::CameraCalibrationHeader::NativeType, vision::CameraCalibrationHeader>(void*, void*);
 
 }
