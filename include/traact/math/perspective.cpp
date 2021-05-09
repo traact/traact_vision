@@ -39,24 +39,35 @@
 #include <traact/math/ceres/PointReprojectionError.h>
 Eigen::Vector2d
 traact::math::reproject_point(const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3d& point) {
-    Eigen::Vector2d result;
-    Eigen::Matrix<double, 4,4> projection_matrix;
+//    Eigen::Vector2d result;
+//    Eigen::Matrix<double, 4,4> projection_matrix;
+//
+//    projection_matrix.col(0) = Eigen::Vector4d(intrinsics.fx, 0,0,0);
+//    projection_matrix.col(1) = Eigen::Vector4d(0, intrinsics.fy,0,0);
+//    projection_matrix.col(2) = Eigen::Vector4d(intrinsics.cx, intrinsics.cy ,1,0);
+//    projection_matrix.col(3) = Eigen::Vector4d(0, 0,0,1);
+//
+//    Eigen::Vector4d p(point.x(), point.y(), point.z(), 1);
+//
+//    auto tmp = projection_matrix * p;
+//
+//    result.x() = tmp.x() /tmp.z();
+//    result.y() = tmp.y() /tmp.z();
+//
+//
+//    //return std::move(result);
+//    return result;
+    cv::Mat cv_intrinsics;
+    cv::Mat cv_distortion;
+    traact2cv(intrinsics,cv_intrinsics, cv_distortion);
+    std::vector<cv::Point2f> image_points(1);
+    std::vector<cv::Point3f> obj_point(1);
+    obj_point[0] = cv::Point3f(point.x(),point.y(), point.z());
 
-    projection_matrix.col(0) = Eigen::Vector4d(intrinsics.fx, 0,0,0);
-    projection_matrix.col(1) = Eigen::Vector4d(0, intrinsics.fy,0,0);
-    projection_matrix.col(2) = Eigen::Vector4d(intrinsics.cx, intrinsics.cy ,1,0);
-    projection_matrix.col(3) = Eigen::Vector4d(0, 0,0,1);
-
-    Eigen::Vector4d p(point.x(), point.y(), point.z(), 1);
-
-    auto tmp = projection_matrix * p;
-
-    result.x() = tmp.x() /tmp.z();
-    result.y() = tmp.y() /tmp.z();
-
-
-    //return std::move(result);
-    return result;
+    cv::Mat tmp(1,3, CV_32FC1);
+    tmp.setTo(0);
+    cv::projectPoints(obj_point, tmp, tmp, cv_intrinsics, cv_distortion, image_points );
+    return Eigen::Vector2d(image_points[0].x,image_points[0].y);
 }
 
 Eigen::Vector2d

@@ -19,11 +19,13 @@ class Traact(ConanFile):
     compiler = "cppstd"
     options = {
         "shared": [True, False],
+        "with_cuda": [True, False],
         "with_tests": [True, False]
     }
 
     default_options = {
         "shared": True,
+        "with_cuda": True,
         "with_tests": True
     }
 
@@ -59,7 +61,7 @@ class Traact(ConanFile):
         self.options['traact_core'].shared = self.options.shared
         self.options['opencv'].shared = self.options.shared
 
-        self.options['opencv'].with_cuda = True
+        self.options['opencv'].with_cuda = self.options.with_cuda
 
         if self.settings.os == "Linux":
             self.options['opencv'].with_gtk = True
