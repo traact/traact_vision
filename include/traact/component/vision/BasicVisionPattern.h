@@ -32,19 +32,19 @@
 #ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
 #define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_COMPONENT_VISION_BASICVISIONPATTERN_H_
 
-#include <traact/pattern/spatial/SpatialPattern.h>
+#include <traact/pattern/Pattern.h>
 #include <traact/datatypes.h>
 #include <traact/vision.h>
 namespace traact::component::vision {
-static traact::pattern::spatial::SpatialPattern::Ptr getUncalibratedCameraPattern() {
+static traact::pattern::Pattern::Ptr getUncalibratedCameraPattern() {
 
-  traact::pattern::spatial::SpatialPattern::Ptr
+  traact::pattern::Pattern::Ptr
       pattern =
-      std::make_shared<traact::pattern::spatial::SpatialPattern>("UncalibratedCameraPattern", serial);
+      std::make_shared<traact::pattern::Pattern>("UncalibratedCameraPattern", serial);
 
   pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
-  pattern->addCoordianteSystem("ImagePlane")
-      .addCoordianteSystem("Image", true)
+    pattern->addCoordinateSystem("ImagePlane")
+            .addCoordinateSystem("Image", true)
       .addEdge("ImagePlane", "Image", "output");
 
   std::set<std::string> pixel_formats;
@@ -56,14 +56,14 @@ static traact::pattern::spatial::SpatialPattern::Ptr getUncalibratedCameraPatter
   return pattern;
 }
 
-static traact::pattern::spatial::SpatialPattern::Ptr getCameraPattern() {
+static traact::pattern::Pattern::Ptr getCameraPattern() {
 
-  traact::pattern::spatial::SpatialPattern::Ptr
+  traact::pattern::Pattern::Ptr
       pattern = getUncalibratedCameraPattern();
 
   pattern->addProducerPort("output_calibration", traact::vision::CameraCalibrationHeader::MetaType);
 
-  pattern->addCoordianteSystem("Camera")
+    pattern->addCoordinateSystem("Camera")
       .addEdge("ImagePlane", "Camera", "intrinsic");
 
 

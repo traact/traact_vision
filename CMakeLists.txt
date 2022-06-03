@@ -18,7 +18,7 @@ set(PLUGIN_HEADERS
 set(LIB_SOURCES src/vision.cpp include/traact/math/perspective.cpp include/traact/math/perspective.h include/traact/vision_datatypes.h include/traact/opencv/OpenCVUtils.h include/traact/math/ceres/PointReprojectionError.h include/traact/math/utils.h include/traact/vision/UndistortionHelper.cpp include/traact/vision/UndistortionHelper.h)
 
 set(PLUGIN_SOURCES
-        )
+        include/traact/vision/FLOutsideInTracking.cpp include/traact/vision/FLOutsideInTracking.h include/traact/util/GenerateMultiCameraBATestData.cpp include/traact/util/GenerateMultiCameraBATestData.h include/traact/math/ceres/TargetReprojectionError.h include/traact/math/ceres/DistanceError3D3D.h)
 
 
 # conan is required hard, library name, version and description are configured from conan

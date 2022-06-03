@@ -33,7 +33,7 @@ class Traact(ConanFile):
 
     def requirements(self):
 
-        self.requires("cuda_dev_config/[1.1]@camposs/stable")    
+        self.requires("cuda_dev_config/[>=2.0]@camposs/stable")
         self.requires("traact_spatial/%s@camposs/stable" % self.version)
         self.requires("opencv/4.5.0@camposs/stable")
 

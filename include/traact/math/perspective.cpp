@@ -37,6 +37,9 @@
 
 #include <ceres/ceres.h>
 #include <traact/math/ceres/PointReprojectionError.h>
+#include <traact/math/ceres/TargetReprojectionError.h>
+#include <traact/math/ceres/DistanceError3D3D.h>
+
 Eigen::Vector2d
 traact::math::reproject_point(const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3d& point) {
 //    Eigen::Vector2d result;
@@ -140,8 +143,8 @@ bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const spat
 
 }
 
-bool traact::math::estimate_3d_point(Eigen::Vector3d &result,  const std::vector<Eigen::Affine3d>& cam2world, const std::vector<vision::CameraCalibration> &intrinsics,
-                                     std::vector<Eigen::Vector2d> image_point, double* covariance_output) {
+bool traact::math::estimate_3d_point(Eigen::Vector3d &result, const std::vector<Eigen::Affine3d>& cam2world, const std::vector<vision::CameraCalibration> &intrinsics,
+                                     const std::vector<Eigen::Vector2d> &image_point, double* covariance_output) {
     if(intrinsics.size() != image_point.size() || cam2world.size() != image_point.size()) {
         SPDLOG_ERROR("size of cam2world or calibration differ from image points");
         return false;
@@ -214,9 +217,14 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,  const std::vector
         std::vector<std::pair<const double*, const double*> > covariance_blocks;
         covariance_blocks.push_back(std::make_pair(ceres_result, ceres_result));
 
-        CHECK(covariance.Compute(covariance_blocks, &problem));
+        if(!covariance.Compute(covariance_blocks, &problem)){
+            spdlog::error("could not compute covariance");
 
-        covariance.GetCovarianceBlock(ceres_result, ceres_result, covariance_output);
+        } else {
+            covariance.GetCovarianceBlock(ceres_result, ceres_result, covariance_output);
+        }
+
+
     }
 
 
@@ -224,7 +232,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,  const std::vector
 }
 
 Eigen::Matrix<double, 3, 4> traact::math::create_projection_matrix(const Eigen::Affine3d &cam2world,
-                                                       const traact::vision::CameraCalibration calibration) {
+                                                                   const vision::CameraCalibration &calibration) {
     Eigen::Matrix4d result;
 
     Eigen::Matrix3d intrinsics;
@@ -279,5 +287,170 @@ double traact::math::average_reprojection_error(const Eigen::Affine3d &cam2world
 
     return std::sqrt(error);
 }
+
+bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::vector<Eigen::Affine3d> &cam2world,
+                                    const std::vector<vision::CameraCalibration> &intrinsics,
+                                    const std::vector<spatial::Position2DList> &image_point,
+                                    const spatial::Position3DList &model, double *covariance_output) {
+    if(intrinsics.size() != image_point.size() || cam2world.size() != image_point.size()) {
+        SPDLOG_ERROR("size of cam2world or calibration differ from image points");
+        return false;
+    }
+
+    // should work with only one view
+    if(intrinsics.size() < 1) {
+        SPDLOG_ERROR("at least one view needed");
+        return false;
+    }
+
+
+
+    ceres::Problem problem;
+
+    double ceres_result[7];
+    ceres_result[0] = 1;
+    ceres_result[1] = 0;
+    ceres_result[2] = 0;
+    ceres_result[3] = 0;
+    ceres_result[4] = 0;
+    ceres_result[5] = 0;
+    ceres_result[6] = 0;
+
+    spatial::Pose6D init_cam2target;
+    bool init_result = estimate_camera_pose(init_cam2target, image_point[0], intrinsics[0], model );
+    if(init_result) {
+        spatial::Pose6D init_pose = cam2world[0].inverse() * init_cam2target;
+        Eigen::Vector3d init_pos = init_pose.translation();
+        Eigen::Quaterniond init_rot(init_pose.rotation());
+        ceres_result[0] = init_rot.w();
+        ceres_result[1] = init_rot.x();
+        ceres_result[2] = init_rot.y();
+        ceres_result[3] = init_rot.z();
+        ceres_result[4] = init_pos.x();
+        ceres_result[5] = init_pos.y();
+        ceres_result[6] = init_pos.z();
+
+    } else {
+        spdlog::warn("estimate_3d_pose: unable to estimate init pose");
+    }
+
+
+    for (int i = 0; i < image_point.size(); ++i) {
+
+        //double* tmp = 0;//measurement_for_observation(i);
+        // all are single 3d points
+        ceres::CostFunction* cost_function = TargetReprojectionErrorFactory::Create(image_point[i], cam2world[i], intrinsics[i], model);
+
+        problem.AddResidualBlock(cost_function,
+                                 NULL,//new ceres::HuberLoss(1.0), //NULL /* squared loss */,
+                                 ceres_result);
+
+
+
+    }
+
+
+
+    ceres::Solver::Options options;
+    options.logging_type = ceres::SILENT;
+    //options.linear_solver_type = ceres::LinearSolverType::DENSE_QR;
+    ceres::Solver::Summary summary;
+    ceres::Solve(options, &problem, &summary);
+    //std::cout << summary.FullReport() << "\n";
+    //spdlog::info(summary.FullReport());
+    Eigen::Quaterniond result_rot = Eigen::Quaterniond(ceres_result[0],ceres_result[1],ceres_result[2],ceres_result[3]);
+    Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4],ceres_result[5],ceres_result[6]);
+    result.setIdentity();
+    result.translate(result_pos);
+    result.rotate(result_rot);
+
+    if(covariance_output && summary.IsSolutionUsable()){
+        ceres::Covariance::Options options;
+        ceres::Covariance covariance(options);
+
+        std::vector<std::pair<const double*, const double*> > covariance_blocks;
+        covariance_blocks.push_back(std::make_pair(ceres_result, ceres_result));
+
+        CHECK(covariance.Compute(covariance_blocks, &problem));
+
+        covariance.GetCovarianceBlock(ceres_result, ceres_result, covariance_output);
+    }
+
+
+    return summary.IsSolutionUsable();
+}
+
+bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const traact::spatial::Position3DList &src,
+                                    const traact::spatial::Position3DList &dst, double *covariance_output) {
+    if(src.size() != dst.size()) {
+        SPDLOG_ERROR("size of src points differs from src points");
+        return false;
+    }
+
+    // should work with only one view
+//    if(intrinsics.size() < 2) {
+//        SPDLOG_ERROR("at least two views needed");
+//        return false;
+//    }
+
+
+
+    ceres::Problem problem;
+
+    double ceres_result[7];
+    ceres_result[0] = 1;
+    ceres_result[1] = 0;
+    ceres_result[2] = 0;
+    ceres_result[3] = 0;
+    ceres_result[4] = 0;
+    ceres_result[5] = 0;
+    ceres_result[6] = 0;
+    ceres_result[7] = 0;
+
+    ceres::CostFunction* cost_function = DistanceError3D3DFactory::Create(src, dst);
+
+    problem.AddResidualBlock(cost_function,
+                             NULL,//new ceres::HuberLoss(1.0), //NULL /* squared loss */,
+                             ceres_result);
+
+
+
+    ceres::Solver::Options options;
+    options.logging_type = ceres::SILENT;
+    //options.linear_solver_type = ceres::LinearSolverType::DENSE_QR;
+    ceres::Solver::Summary summary;
+    ceres::Solve(options, &problem, &summary);
+    //std::cout << summary.FullReport() << "\n";
+    //spdlog::info(summary.FullReport());
+    Eigen::Quaterniond result_rot = Eigen::Quaterniond(ceres_result[0],ceres_result[1],ceres_result[2],ceres_result[3]);
+    Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4],ceres_result[5],ceres_result[6]);
+    result.setIdentity();
+    result.translate(result_pos);
+    result.rotate(result_rot);
+
+    if(covariance_output && summary.IsSolutionUsable()){
+        ceres::Covariance::Options options;
+        ceres::Covariance covariance(options);
+
+        std::vector<std::pair<const double*, const double*> > covariance_blocks;
+        covariance_blocks.push_back(std::make_pair(ceres_result, ceres_result));
+
+        CHECK(covariance.Compute(covariance_blocks, &problem));
+
+        covariance.GetCovarianceBlock(ceres_result, ceres_result, covariance_output);
+    }
+
+
+    return summary.IsSolutionUsable();
+}
+
+double
+traact::math::reprojection_error(const Eigen::Affine3d &cam2world, const traact::spatial::Position2D &image_points,
+                                 const traact::vision::CameraCalibration &intrinsics,
+                                 const traact::spatial::Position3D &model_points) {
+    auto reprojected_point = reproject_point(cam2world,intrinsics, model_points);
+    return (reprojected_point - image_points).norm();
+}
+
 
 
