@@ -51,7 +51,7 @@ void traact::vision::FLOutsideInTracking::Compute() {
                     n.normalize();
                     Eigen::Vector3d diff = line2.origin() - line1.origin();
                     double distance = std::abs(n.dot(diff));
-                    //spdlog::info("Camera {0} Point {1} to {2} {3}, distance {4}", camera_idx, point_idx, camera_idx2, point_idx2, distance);
+                    //SPDLOG_INFO("Camera {0} Point {1} to {2} {3}, distance {4}", camera_idx, point_idx, camera_idx2, point_idx2, distance);
                     if (distance < distance_threshold) {
                         current_candidate.AddCandidate(camera_idx2, point_idx2);
                     }
@@ -69,7 +69,7 @@ void traact::vision::FLOutsideInTracking::Compute() {
     for (auto &candidate : candidates) {
         auto good_candidates = candidate.GetGoodCandidates();
         auto candidate_size = good_candidates.size();
-        //spdlog::info("new candidate with good points {0}", candidate_size);
+        //SPDLOG_INFO("new candidate with good points {0}", candidate_size);
         if (candidate_size < 2)
             continue;
 
@@ -106,14 +106,14 @@ void traact::vision::FLOutsideInTracking::Compute() {
 //            stddev += covar[i+i*3];
 //        }
 //        stddev = std::sqrt(stddev);
-//        spdlog::info("stddev {0}", stddev);
+//        SPDLOG_INFO("stddev {0}", stddev);
 //        if(stddev == 0.0)
 //            continue;
 //        if(stddev > 0.1)
 //            continue;
-//        spdlog::info("add stddev {0}", stddev);
+//        SPDLOG_INFO("add stddev {0}", stddev);
 
-        //spdlog::info("reconstructed point {0} {1} {2}", result.x(), result.y(), result.z());
+        //SPDLOG_INFO("reconstructed point {0} {1} {2}", result.x(), result.y(), result.z());
         current_points3D.push_back(result);
         current_points2D.push_back(good_candidates);
 
@@ -170,7 +170,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
 
     if (result) {
 
-        //spdlog::info("found model: {0}", found_correspondences.size());
+        //SPDLOG_INFO("found model: {0}", found_correspondences.size());
 
 
         std::vector<Eigen::Affine3d> cam2world;
@@ -193,7 +193,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
                     if (find_points_result.size() == 1) {
                         final_points[model_idx][camera_idx] = find_points_result[0];
                     } else {
-                        spdlog::warn("too many possible matches for point, reject camera {0}, model idx {1}",
+                        SPDLOG_WARN("too many possible matches for point, reject camera {0}, model idx {1}",
                                      camera_idx,
                                      model_idx);
                         use_camera = false;
@@ -252,7 +252,7 @@ bool traact::vision::FLOutsideInTracking::TestPointAsOrigin(size_t origin_idx,
     if (!IsModelPoint(0, origin_idx))
         return false;
 
-    spdlog::info("model idx: {0} p {1} {2} {3} {4}",
+    SPDLOG_INFO("model idx: {0} p {1} {2} {3} {4}",
                  0,
                  current_points3D[origin_idx].x(),
                  current_points3D[origin_idx].y(),

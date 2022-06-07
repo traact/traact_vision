@@ -157,7 +157,7 @@ class TargetReprojectionErrorFactory {
             case 15:return TargetReprojectionError<15>::Create(observed, cam2world, calibration, model);
             case 16:return TargetReprojectionError<16>::Create(observed, cam2world, calibration, model);
             case 0:
-            default:spdlog::error("unsupported number of observations for CeresTargetNPointReprojectionError");
+            default:SPDLOG_ERROR("unsupported number of observations for CeresTargetNPointReprojectionError");
                 return 0;
 
         }

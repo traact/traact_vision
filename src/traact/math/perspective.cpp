@@ -194,7 +194,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
         covariance_blocks.push_back(std::make_pair(ceres_result, ceres_result));
 
         if (!covariance.Compute(covariance_blocks, &problem)) {
-            spdlog::error("could not compute covariance");
+            SPDLOG_ERROR("could not compute covariance");
 
         } else {
             covariance.GetCovarianceBlock(ceres_result, ceres_result, covariance_output);
@@ -303,7 +303,7 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
         ceres_result[6] = init_pos.z();
 
     } else {
-        spdlog::warn("estimate_3d_pose: unable to estimate init pose");
+        SPDLOG_WARN("estimate_3d_pose: unable to estimate init pose");
     }
 
     for (int i = 0; i < image_point.size(); ++i) {
@@ -325,7 +325,7 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
     //std::cout << summary.FullReport() << "\n";
-    //spdlog::info(summary.FullReport());
+    //SPDLOG_INFO(summary.FullReport());
     Eigen::Quaterniond
         result_rot = Eigen::Quaterniond(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
     Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4], ceres_result[5], ceres_result[6]);
@@ -387,7 +387,7 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const traac
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
     //std::cout << summary.FullReport() << "\n";
-    //spdlog::info(summary.FullReport());
+    //SPDLOG_INFO(summary.FullReport());
     Eigen::Quaterniond
         result_rot = Eigen::Quaterniond(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
     Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4], ceres_result[5], ceres_result[6]);

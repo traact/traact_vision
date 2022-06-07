@@ -99,7 +99,7 @@ class DistanceError3D3DFactory {
             case 15:return DistanceError3D3D<15>::Create(src_points, dst_points);
             case 16:return DistanceError3D3D<16>::Create(src_points, dst_points);
             case 0:
-            default:spdlog::error("unsupported number of observations for CeresTargetNPointReprojectionError");
+            default:SPDLOG_ERROR("unsupported number of observations for CeresTargetNPointReprojectionError");
                 return 0;
 
         }

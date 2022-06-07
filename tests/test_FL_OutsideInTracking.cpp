@@ -87,7 +87,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
 
         EXPECT_TRUE(result_valid);
         if (result_valid) {
-            //spdlog::info("valid result {0} {1} {2}", world2target_pose.translation().x(), world2target_pose.translation().y(), world2target_pose.translation().z());
+            //SPDLOG_INFO("valid result {0} {1} {2}", world2target_pose.translation().x(), world2target_pose.translation().y(), world2target_pose.translation().z());
             spatial::Pose6D expected_pose = test_data.GetTargetPose(mea_idx);
             spatial::Pose6D diff_pose = world2target_pose * expected_pose.inverse();
             Eigen::Quaterniond diff_rot(diff_pose.rotation());
@@ -100,9 +100,9 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
         }
 
 //        for (int i = 0; i < target_points.size(); ++i) {
-//            spdlog::info("target point {0}",i);
+//            SPDLOG_INFO("target point {0}",i);
 //            for (auto& camIdx_pointIdx : target_points[i]) {
-//                spdlog::info("camera {0} point {1}", camIdx_pointIdx.first, camIdx_pointIdx.second);
+//                SPDLOG_INFO("camera {0} point {1}", camIdx_pointIdx.first, camIdx_pointIdx.second);
 //            }
 //        }
 
@@ -254,11 +254,11 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 
             }
             if (found_count == 0) {
-                spdlog::error("missing model point {0}", model_idx);
+                SPDLOG_ERROR("missing model point {0}", model_idx);
             } else if (found_count > 1) {
-                spdlog::error("multiple points to close to model point {0}", model_idx);
+                SPDLOG_ERROR("multiple points to close to model point {0}", model_idx);
             } else {
-                spdlog::info("model point found {0}, distance {1}", model_idx, distance);
+                SPDLOG_INFO("model point found {0}, distance {1}", model_idx, distance);
             }
         }
 
@@ -270,7 +270,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 
         EXPECT_TRUE(result_valid);
         if (result_valid) {
-            //spdlog::info("valid result {0} {1} {2}", world2target_pose.translation().x(), world2target_pose.translation().y(), world2target_pose.translation().z());
+            //SPDLOG_INFO("valid result {0} {1} {2}", world2target_pose.translation().x(), world2target_pose.translation().y(), world2target_pose.translation().z());
             spatial::Pose6D expected_pose = test_data.GetTargetPose(mea_idx);
 
 
@@ -286,9 +286,9 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
         }
 
 //        for (int i = 0; i < target_points.size(); ++i) {
-//            spdlog::info("target point {0}",i);
+//            SPDLOG_INFO("target point {0}",i);
 //            for (auto& camIdx_pointIdx : target_points[i]) {
-//                spdlog::info("camera {0} point {1}", camIdx_pointIdx.first, camIdx_pointIdx.second);
+//                SPDLOG_INFO("camera {0} point {1}", camIdx_pointIdx.first, camIdx_pointIdx.second);
 //            }
 //        }
 
