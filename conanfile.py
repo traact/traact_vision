@@ -5,11 +5,11 @@ from conans import ConanFile, CMake, tools
 
 class Traact(ConanFile):
     name = "traact_vision"
-    version = "0.0.1"    
+    version = "0.0.1"
 
     description = "Image datatype and vision functions for traact using opencv"
     url = ""
-    license = "BSD 3-Clause"
+    license = "MIT"
     author = "Frieder Pankratz"
 
     short_paths = True
@@ -29,14 +29,13 @@ class Traact(ConanFile):
         "with_tests": True
     }
 
-    exports_sources = "include/*", "src/*", "tests/*", "CMakeLists.txt"
+    exports_sources = "src/*", "tests/*", "CMakeLists.txt"
 
     def requirements(self):
 
         self.requires("cuda_dev_config/[>=2.0]@camposs/stable")
-        self.requires("traact_spatial/%s@camposs/stable" % self.version)
+        self.requires("traact_spatial/[>=0.1.0]@camposs/stable")
         self.requires("opencv/4.5.0@camposs/stable")
-
 
         if self.options.with_tests:
             self.requires("gtest/1.10.0")
@@ -66,9 +65,7 @@ class Traact(ConanFile):
         if self.settings.os == "Linux":
             self.options['opencv'].with_gtk = True
 
-        #self.options['opencv'].with_tbb = True
-        
-
+        # self.options['opencv'].with_tbb = True
 
     def build(self):
         cmake = self._configure_cmake()
@@ -80,5 +77,4 @@ class Traact(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = [self.name]
-        #self.cpp_info.libs = tools.collect_libs(self)
-
+        # self.cpp_info.libs = tools.collect_libs(self)

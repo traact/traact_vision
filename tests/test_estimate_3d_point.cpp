@@ -1,32 +1,7 @@
-/*  BSD 3-Clause License
+/**
+ *   Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com>
  *
- *  Copyright (c) 2020, FriederPankratz <frieder.pankratz@gmail.com>
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are met:
- *
- *  1. Redistributions of source code must retain the above copyright notice, this
- *     list of conditions and the following disclaimer.
- *
- *  2. Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *
- *  3. Neither the name of the copyright holder nor the names of its
- *     contributors may be used to endorse or promote products derived from
- *     this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   License in root folder
 **/
 
 
@@ -43,13 +18,16 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 
-Eigen::Vector3d test_point(const std::vector<Eigen::Affine3d>&  cam_2_world, const std::vector<traact::vision::CameraCalibration>& calibrations, const Eigen::Vector3d& test_position, const double noise=0) {
+Eigen::Vector3d test_point(const std::vector<Eigen::Affine3d> &cam_2_world,
+                           const std::vector<traact::vision::CameraCalibration> &calibrations,
+                           const Eigen::Vector3d &test_position,
+                           const double noise = 0) {
     using namespace traact::math;
     using namespace traact::vision;
     using namespace Eigen;
 
     std::vector<Vector2d> image_points;
-    for(int i=0;i<cam_2_world.size();++i){
+    for (int i = 0; i < cam_2_world.size(); ++i) {
         Vector2d point = reproject_point(cam_2_world[i], calibrations[i], test_position);
         Vector2d pixel_noise;
         pixel_noise.setRandom();
@@ -61,8 +39,7 @@ Eigen::Vector3d test_point(const std::vector<Eigen::Affine3d>&  cam_2_world, con
 
     Vector3d p3_result;
 
-
-    estimate_3d_point(p3_result,cam_2_world, calibrations, image_points);
+    estimate_3d_point(p3_result, cam_2_world, calibrations, image_points);
 
     return p3_result;
 
@@ -82,18 +59,16 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
     calibration.cx = 326.55453;
     calibration.cy = 349.54202;
 
-
-
     {
         Affine3d marker_pose;
-        std::vector<Affine3d>  cam_2_world;
-        marker_pose = Translation3d(0.1,-0.5,-3);// * AngleAxisd(M_PI, Vector3d::UnitY());
+        std::vector<Affine3d> cam_2_world;
+        marker_pose = Translation3d(0.1, -0.5, -3);// * AngleAxisd(M_PI, Vector3d::UnitY());
 
         cam_2_world.push_back(Affine3d::Identity());
-        cam_2_world.push_back(Translation3d(-0.1,0,0) * AngleAxisd::Identity());
+        cam_2_world.push_back(Translation3d(-0.1, 0, 0) * AngleAxisd::Identity());
 
         std::vector<CameraCalibration> calibrations;
-        for(int i=0;i<cam_2_world.size();++i){
+        for (int i = 0; i < cam_2_world.size(); ++i) {
             calibrations.push_back(calibration);
         }
 
@@ -105,27 +80,31 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
 
     {
         Affine3d marker_pose;
-        std::vector<Affine3d>  cam_2_world;
-        marker_pose = Translation3d(0.1,-0.5,-3);// * AngleAxisd(M_PI, Vector3d::UnitY());
+        std::vector<Affine3d> cam_2_world;
+        marker_pose = Translation3d(0.1, -0.5, -3);// * AngleAxisd(M_PI, Vector3d::UnitY());
 
         {
             Affine3d pose_c2w;
             pose_c2w = Translation3d(-2.13208468683971208e+00, -1.20638214730114912e+00, 2.30451254078307244e+00);
-            pose_c2w.rotate(Quaterniond(-8.49694826269651537e-01,-3.46199513669736558e-01, 1.29443829434892799e-01, 3.76043739432868451e-01));
+            pose_c2w.rotate(Quaterniond(-8.49694826269651537e-01,
+                                        -3.46199513669736558e-01,
+                                        1.29443829434892799e-01,
+                                        3.76043739432868451e-01));
             cam_2_world.push_back(pose_c2w);
         }
 
         {
             Affine3d pose_c2w;
             pose_c2w = Translation3d(-2.24341394331049226e+00, 2.91498703341871979e+00, 2.19838501838564992e+00);
-            pose_c2w.rotate(Quaterniond( 4.53584848555412923e-01, 1.66481146382847056e-01, -3.40200132181601056e-01, -8.06727142919858475e-01 ));
+            pose_c2w.rotate(Quaterniond(4.53584848555412923e-01,
+                                        1.66481146382847056e-01,
+                                        -3.40200132181601056e-01,
+                                        -8.06727142919858475e-01));
             cam_2_world.push_back(pose_c2w);
         }
 
-
-
         std::vector<CameraCalibration> calibrations;
-        for(int i=0;i<cam_2_world.size();++i){
+        for (int i = 0; i < cam_2_world.size(); ++i) {
             calibrations.push_back(calibration);
         }
 
@@ -134,11 +113,6 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
         EXPECT_NEAR(marker_pose.translation().y(), p3_result.y(), 1e-9);
         EXPECT_NEAR(marker_pose.translation().z(), p3_result.z(), 1e-9);
     }
-
-
-
-
-
 
 }
 

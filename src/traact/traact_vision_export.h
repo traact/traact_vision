@@ -2,7 +2,7 @@
 #ifndef TRAACT_VISION_EXPORT_H
 #define TRAACT_VISION_EXPORT_H
 
-#ifdef TRAACT_TARGET_WINDOWS	   
+#ifdef TRAACT_TARGET_WINDOWS
 #define TRAACT_VISION_VISIBILITY_EXPORT __declspec(dllexport)
 #else
 #define TRAACT_VISION_VISIBILITY_EXPORT __attribute__((visibility("default")))

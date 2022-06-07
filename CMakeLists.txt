@@ -6,19 +6,19 @@ option(WITH_COVERAGE "" ON)
 set(CMAKE_CXX_STANDARD 17)
 
 # public header
-set(LIB_HEADERS include/traact/vision.h include/traact/traact_vision_export.h
-        include/traact/component/vision/BasicVisionPattern.h
-        include/traact/vision/SubPixelEdgeDectection.h)
+set(LIB_HEADERS src/traact/vision.h src/traact/traact_vision_export.h
+        src/traact/component/vision/BasicVisionPattern.h
+        src/traact/vision/SubPixelEdgeDectection.h)
 
 set(PLUGIN_HEADERS
         )
 
 
 # rest of source code
-set(LIB_SOURCES src/vision.cpp include/traact/math/perspective.cpp include/traact/math/perspective.h include/traact/vision_datatypes.h include/traact/opencv/OpenCVUtils.h include/traact/math/ceres/PointReprojectionError.h include/traact/math/utils.h include/traact/vision/UndistortionHelper.cpp include/traact/vision/UndistortionHelper.h)
+set(LIB_SOURCES src/vision.cpp src/traact/math/perspective.cpp src/traact/math/perspective.h src/traact/vision_datatypes.h src/traact/opencv/OpenCVUtils.h src/traact/math/ceres/PointReprojectionError.h src/traact/math/utils.h src/traact/vision/UndistortionHelper.cpp src/traact/vision/UndistortionHelper.h)
 
 set(PLUGIN_SOURCES
-        include/traact/vision/FLOutsideInTracking.cpp include/traact/vision/FLOutsideInTracking.h include/traact/util/GenerateMultiCameraBATestData.cpp include/traact/util/GenerateMultiCameraBATestData.h include/traact/math/ceres/TargetReprojectionError.h include/traact/math/ceres/DistanceError3D3D.h)
+        src/traact/vision/FLOutsideInTracking.cpp src/traact/vision/FLOutsideInTracking.h src/traact/util/GenerateMultiCameraBATestData.cpp src/traact/util/GenerateMultiCameraBATestData.h src/traact/math/ceres/TargetReprojectionError.h src/traact/math/ceres/DistanceError3D3D.h)
 
 
 # conan is required hard, library name, version and description are configured from conan
@@ -52,24 +52,24 @@ add_definitions(-DTBB_PREVIEW_FLOW_GRAPH_NODES=1)
 #set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 #generate_export_header(${CONAN_PACKAGE_NAME} EXPORT_FILE_NAME "../../include/traact/${CONAN_PACKAGE_NAME}_export.h")
 
-if(UNIX)
-    if(APPLE)
+if (UNIX)
+    if (APPLE)
         MESSAGE(STATUS "Building for Macos.")
         add_definitions(-DTRAACT_TARGET_APPLE=1)
-    endif()
+    endif ()
     MESSAGE(STATUS "Building for Unix.")
     add_definitions(-DTRAACT_TARGET_UNIX=1)
-elseif(WIN32)
+elseif (WIN32)
     MESSAGE(STATUS "Building for Windows.")
     add_definitions(-DTRAACT_TARGET_WINDOWS=1)
-endif()
+endif ()
 
 if (MSVC)
     # per default disable extended aligned storage for now on msvc
     add_definitions(-D_DISABLE_EXTENDED_ALIGNED_STORAGE -DHAVE_SNPRINTF)
-endif()
+endif ()
 
-add_link_options( -fno-gnu-unique )
+add_link_options(-fno-gnu-unique)
 
 add_library(${CONAN_PACKAGE_NAME} SHARED
         ${LIB_HEADERS}
@@ -83,9 +83,6 @@ conan_target_link_libraries(${CONAN_PACKAGE_NAME})
 set_target_properties(${CONAN_PACKAGE_NAME} PROPERTIES VERSION ${CONAN_PACKAGE_VERSION})
 #set_target_properties(${CONAN_PACKAGE_NAME} PROPERTIES PUBLIC_HEADER ${LIB_HEADERS})
 
-target_include_directories(${CONAN_PACKAGE_NAME} PUBLIC
-        $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_include_directories(${CONAN_PACKAGE_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         )
@@ -98,12 +95,11 @@ ENDIF (NOT WIN32)
 install(TARGETS ${CONAN_PACKAGE_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/traact" # source directory
+install(DIRECTORY "src/traact" # source directory
         DESTINATION "include" # target directory
         FILES_MATCHING # install only matched files
         PATTERN "*.h" # select header files
         )
-
 
 
 if (WITH_TESTS)

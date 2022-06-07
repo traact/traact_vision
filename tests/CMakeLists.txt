@@ -17,18 +17,13 @@ target_link_libraries(traact_vision_test PUBLIC
 # conan weirdness ...
 if (TARGET CONAN_PKG::GTest)
     target_link_libraries(traact_vision_test PUBLIC CONAN_PKG::GTest)
-else()
+else ()
     target_link_libraries(traact_vision_test PUBLIC CONAN_PKG::gtest)
-endif()
-
+endif ()
 
 
 target_include_directories(traact_vision_test
         PRIVATE
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>/include
-        $<INSTALL_INTERFACE:include>
-        ${PROJECT_BINARY_DIR}/include
-        ${PROJECT_BINARY_DIR}/src
+        ${PROJECT_BINARY_DIR}/
         ${PROJECT_SOURCE_DIR}/src
-        ${CMAKE_BINARY_DIR}/include
         )
