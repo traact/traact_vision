@@ -39,6 +39,7 @@ jobs:
         run: |
           conan user
           conan export . @traact/latest
+          conan remote add traact-camposs https://conan.campar.in.tum.de/api/conan/conan-traact
       - name: Upload Package
         uses: grisumbras/conan-upload@v0.3.0
         with:
