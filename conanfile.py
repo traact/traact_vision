@@ -5,10 +5,10 @@ from conans import ConanFile, CMake, tools
 
 class Traact(ConanFile):
     name = "traact_vision"
-    version = "0.0.1"
+    version = "0.1.0"
 
     description = "Image datatype and vision functions for traact using opencv"
-    url = ""
+    url = "https://github.com/traact/traact_vision"
     license = "MIT"
     author = "Frieder Pankratz"
 
@@ -61,10 +61,8 @@ class Traact(ConanFile):
         self.options['opencv'].shared = self.options.shared
 
         self.options['opencv'].with_cuda = self.options.with_cuda
-
         if self.settings.os == "Linux":
             self.options['opencv'].with_gtk = True
-
         # self.options['opencv'].with_tbb = True
 
     def build(self):
@@ -77,4 +75,3 @@ class Traact(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = [self.name]
-        # self.cpp_info.libs = tools.collect_libs(self)

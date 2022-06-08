@@ -1,8 +1,4 @@
-/**
- *   Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com>
- *
- *   License in root folder
-**/
+/** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
 #ifndef TRAACTMULTI_VISION_DATATYPES_H
 #define TRAACTMULTI_VISION_DATATYPES_H

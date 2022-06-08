@@ -1,8 +1,4 @@
-/**
- *   Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com>
- *
- *   License in root folder
-**/
+/** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
 #ifndef TRAACTMULTI_DISTANCEERROR3D3D_H
 #define TRAACTMULTI_DISTANCEERROR3D3D_H
