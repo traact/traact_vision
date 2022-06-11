@@ -6,12 +6,12 @@
 #include <traact/pattern/Pattern.h>
 #include <traact/datatypes.h>
 #include <traact/vision.h>
-namespace traact::component::vision {
+namespace traact::component {
 static traact::pattern::Pattern::Ptr getUncalibratedCameraPattern() {
 
     traact::pattern::Pattern::Ptr
         pattern =
-        std::make_shared<traact::pattern::Pattern>("UncalibratedCameraPattern", Concurrency::SERIAL);
+        std::make_shared<traact::pattern::Pattern>("UncalibratedCameraPattern", Concurrency::SERIAL,ComponentType::ASYNC_SOURCE);
 
     pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
     pattern->addCoordinateSystem("ImagePlane")

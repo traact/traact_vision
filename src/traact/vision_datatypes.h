@@ -27,25 +27,6 @@ enum class TRAACT_VISION_EXPORT PixelFormat {
     MJPEG
 };
 
-class TRAACT_VISION_EXPORT Image;
-
-struct TRAACT_VISION_EXPORT ImageHeader {
-    ImageHeader() {}
-    /**
-       * Definitions needed by traact and the user to use a datatype
-       */
-    static const char *MetaType;
-    typedef Image NativeType;
-    static const char *NativeTypeName;
-
-    PixelFormat pixel_format = PixelFormat::UNKNOWN_PIXELFORMAT;
-    int width = 0;
-    int height = 0;
-    int opencv_matrix_type = 0;
-    size_t opencv_step = cv::Mat::AUTO_STEP;
-    int device_id = 0;
-};
-
 struct TRAACT_VISION_EXPORT CameraCalibration {
     int width;
     int height;
@@ -104,54 +85,10 @@ struct TRAACT_VISION_EXPORT CameraCalibration {
 
 };
 
-struct TRAACT_VISION_EXPORT CameraCalibrationHeader {
-    CameraCalibrationHeader() {}
-    /**
-       * Definitions needed by traact and the user to use a datatype
-       */
-    static const char *MetaType;
-    typedef CameraCalibration NativeType;
-    static const char *NativeTypeName;
 
-};
 
-class TRAACT_VISION_EXPORT Image {
- public:
-    Image();
-    Image(ImageHeader header, bool is_cpu);
-    ~Image() = default;
 
-    bool init(ImageHeader header);
 
-    cv::Mat &GetCpuMat();
-    cv::cuda::GpuMat &GetGpuMat();
-
-    const cv::Mat &GetCpuMat() const;
-    void SetCpuMat(cv::Mat &image);
-    const cv::cuda::GpuMat &GetGpuMat() const;
-
-    cv::Mat GetCpuCopy() const;
-
-    ImageHeader GetHeader() const;
-    bool IsCpu() const;
-    bool IsGpu() const;
- private:
-    ImageHeader header_;
-    bool is_cpu_;
-    cv::Mat cpu_mat_;
-    bool is_gpu_;
-    cv::cuda::GpuMat gpu_mat_;
-
-};
-
-class TRAACT_VISION_EXPORT ImageFactoryObject : public buffer::TemplatedDefaultFactoryObject<ImageHeader> {
-
-};
-
-class TRAACT_VISION_EXPORT CameraCalibrationFactoryObject : public buffer::TemplatedDefaultFactoryObject<
-    CameraCalibrationHeader> {
-
-};
 
 }
 

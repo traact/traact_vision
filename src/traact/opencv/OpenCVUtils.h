@@ -23,6 +23,7 @@ static inline Eigen::Vector3d cv2eigen(const cv::Point3d p) {
     return Eigen::Vector3d(p.x, p.y, p.z);
 }
 
+
 static inline void traact2cv(const spatial::Pose6D &pose, cv::Mat &rvec, cv::Mat &tvec) {
 
     spatial::Position3D trans = pose.translation();
@@ -129,6 +130,30 @@ static inline void cv2traact(vision::CameraCalibration &calibration,
         }
     }
 
+}
+
+static inline void cv2traact(const cv::Point2f &cv_point, spatial::Position2D& traact_point){
+    traact_point.x() = static_cast<traact::Scalar>(cv_point.x);
+    traact_point.y() = static_cast<traact::Scalar>(cv_point.y);
+}
+
+static inline void cv2traact(const cv::Point3f &cv_point, spatial::Position3D& traact_point){
+    traact_point.x() = static_cast<traact::Scalar>(cv_point.x);
+    traact_point.y() = static_cast<traact::Scalar>(cv_point.y);
+    traact_point.z() = static_cast<traact::Scalar>(cv_point.z);
+}
+
+static inline void cv2traact(const std::vector<cv::Point2f>& cv_points, spatial::Position2DList traact_points) {
+    traact_points.resize(cv_points.size());
+    for (size_t i=0;i<cv_points.size();++i) {
+        cv2traact(cv_points[i], traact_points[i]);
+    }
+}
+static inline void cv2traact(const std::vector<cv::Point3f>& cv_points, spatial::Position3DList traact_points) {
+    traact_points.resize(cv_points.size());
+    for (size_t i=0;i<cv_points.size();++i) {
+        cv2traact(cv_points[i], traact_points[i]);
+    }
 }
 }
 

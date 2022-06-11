@@ -3,9 +3,10 @@
 #include "UndistortionHelper.h"
 #include "traact/opencv/OpenCVUtils.h"
 #include <traact/util/Logging.h>
+namespace traact::vision {
 void
-traact::vision::UndistortionHelper::Init(const traact::vision::CameraCalibration &calibration, bool optimize_intrinsics,
-                                         bool center_principle_point, double alpha) {
+UndistortionHelper::Init(const CameraCalibration &calibration, bool optimize_intrinsics,
+                         bool center_principle_point, double alpha) {
 
     // init is not thread safe while the undistortion is
     std::lock_guard init_guard(init_mutex_);
@@ -61,20 +62,12 @@ traact::vision::UndistortionHelper::Init(const traact::vision::CameraCalibration
 
 }
 
-traact::vision::CameraCalibration traact::vision::UndistortionHelper::GetUndistortedCalibration() {
+CameraCalibration UndistortionHelper::GetUndistortedCalibration() {
     return undistorted_calibration_;
 }
 
-bool traact::vision::UndistortionHelper::UndistortImage(const Image &input, Image &output) {
-    if (input.IsGpu()) {
 
-    }
-    cv::remap(input.GetCpuMat(), output.GetCpuMat(), mapX_, mapY_, cv::INTER_LINEAR);
-
-    return true;
-}
-
-traact::vision::UndistortionHelper::UndistortionHelper(const traact::vision::UndistortionHelper &other) {
+UndistortionHelper::UndistortionHelper(const UndistortionHelper &other) {
     undistorted_calibration_ = other.undistorted_calibration_;
     distorted_calibration_ = other.distorted_calibration_;
     mapX_ = other.mapX_.clone();
@@ -82,8 +75,10 @@ traact::vision::UndistortionHelper::UndistortionHelper(const traact::vision::Und
 
 }
 
-bool traact::vision::UndistortionHelper::UndistortImage(const cv::Mat &input, cv::Mat &output) {
+bool UndistortionHelper::UndistortImage(const cv::Mat &input, cv::Mat &output) {
     cv::remap(input, output, mapX_, mapY_, cv::INTER_LINEAR);
 
     return true;
+}
+
 }
