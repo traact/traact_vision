@@ -13,7 +13,7 @@ static traact::pattern::Pattern::Ptr getUncalibratedCameraPattern() {
         pattern =
         std::make_shared<traact::pattern::Pattern>("UncalibratedCameraPattern", Concurrency::SERIAL,ComponentType::ASYNC_SOURCE);
 
-    pattern->addProducerPort("output", traact::vision::ImageHeader::MetaType);
+    pattern->addProducerPort("output", traact::vision::ImageHeader::NativeTypeName);
     pattern->addCoordinateSystem("ImagePlane")
         .addCoordinateSystem("Image", true)
         .addEdge("ImagePlane", "Image", "output");
@@ -32,7 +32,7 @@ static traact::pattern::Pattern::Ptr getCameraPattern() {
     traact::pattern::Pattern::Ptr
         pattern = getUncalibratedCameraPattern();
 
-    pattern->addProducerPort("output_calibration", traact::vision::CameraCalibrationHeader::MetaType);
+    pattern->addProducerPort("output_calibration", traact::vision::CameraCalibrationHeader::NativeTypeName);
 
     pattern->addCoordinateSystem("Camera")
         .addEdge("ImagePlane", "Camera", "intrinsic");
