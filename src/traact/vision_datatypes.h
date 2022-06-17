@@ -30,13 +30,13 @@ enum class TRAACT_VISION_EXPORT PixelFormat {
 struct TRAACT_VISION_EXPORT CameraCalibration {
     int width;
     int height;
-    double fx;
-    double fy;
-    double cx;
-    double cy;
-    double skew;
-    std::vector<double> radial_distortion;
-    std::vector<double> tangential_distortion;
+    traact::Scalar fx;
+    traact::Scalar fy;
+    traact::Scalar cx;
+    traact::Scalar cy;
+    traact::Scalar skew;
+    std::vector<traact::Scalar> radial_distortion;
+    std::vector<traact::Scalar> tangential_distortion;
 
     bool operator==(const CameraCalibration &rhs) const {
         return width == rhs.width &&

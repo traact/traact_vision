@@ -6,7 +6,7 @@
 namespace traact::vision {
 void
 UndistortionHelper::Init(const CameraCalibration &calibration, bool optimize_intrinsics,
-                         bool center_principle_point, double alpha) {
+                         bool center_principle_point, traact::Scalar alpha) {
 
     // init is not thread safe while the undistortion is
     std::lock_guard init_guard(init_mutex_);

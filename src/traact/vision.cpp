@@ -25,7 +25,6 @@ int getOpenCvDepth(BaseType type) {
 }
 
 int getOpenCvType(const ImageHeader &header) {
-
     return CV_MAKETYPE(getOpenCvDepth(header.base_type), header.channels);
 }
 void setOpenCvType(const cv::Mat &opencv_type, ImageHeader &header) {

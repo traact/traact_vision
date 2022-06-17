@@ -15,11 +15,11 @@ struct TargetReprojectionError {
     // (u, v): the position of the observation with respect to the image
     // center point.
     TargetReprojectionError(spatial::Position2DList observed,
-                            Eigen::Affine3d cam2world,
+                            traact::spatial::Pose6D cam2world,
                             vision::CameraCalibration calibration,
                             spatial::Position3DList model)
         : observed_(observed), calibration_(calibration), camera2world_(cam2world), model_(model) {
-        Eigen::Quaterniond rot(cam2world.rotation());
+        traact::spatial::Rotation3D rot(cam2world.rotation());
         rot = rot;
         auto pos = cam2world.translation();
         camera[0] = rot.w();
@@ -110,7 +110,7 @@ struct TargetReprojectionError {
     // Factory to hide the construction of the CostFunction object from
     // the client code.
     static ceres::CostFunction *Create(spatial::Position2DList observed,
-                                       Eigen::Affine3d cam2world,
+                                       traact::spatial::Pose6D cam2world,
                                        vision::CameraCalibration calibration,
                                        spatial::Position3DList model) {
         return (new ceres::AutoDiffCostFunction<
@@ -121,7 +121,7 @@ struct TargetReprojectionError {
 
     const spatial::Position2DList observed_;
     const spatial::Pose6D camera2world_;
-    double camera[7];
+    traact::Scalar camera[7];
     const vision::CameraCalibration calibration_;
     const spatial::Position3DList model_;
 
@@ -130,7 +130,7 @@ struct TargetReprojectionError {
 class TargetReprojectionErrorFactory {
  public:
     static ceres::CostFunction *Create(spatial::Position2DList observed,
-                                       Eigen::Affine3d cam2world,
+                                       traact::spatial::Pose6D cam2world,
                                        vision::CameraCalibration calibration,
                                        spatial::Position3DList model) {
 

@@ -15,7 +15,7 @@ void traact::vision::FLOutsideInTracking::SetData(size_t idx, const spatial::Pos
 
 void traact::vision::FLOutsideInTracking::Compute() {
 
-    double distance_threshold = 0.01;
+    traact::Scalar distance_threshold = 0.01;
     std::vector<Point3DCandidate> candidates;
     for (int camera_idx = 0; camera_idx < cameras_.size(); ++camera_idx) {
         for (int point_idx = 0; point_idx < cameras_[camera_idx].input_.size(); ++point_idx) {
@@ -41,12 +41,12 @@ void traact::vision::FLOutsideInTracking::Compute() {
                     auto &line2 = cameras_[camera_idx2].rays_[point_idx2];
                     auto &p2 = cameras_[camera_idx2].input_[point_idx2];
 
-                    Eigen::Vector3d n = line1.direction().cross(line2.direction());
-                    if (n.isApprox(Eigen::Vector3d::Zero(), 1e-5))
+                    Eigen::Vector3<traact::Scalar> n = line1.direction().cross(line2.direction());
+                    if (n.isApprox(Eigen::Vector3<traact::Scalar>::Zero(), 1e-5))
                         continue;
                     n.normalize();
-                    Eigen::Vector3d diff = line2.origin() - line1.origin();
-                    double distance = std::abs(n.dot(diff));
+                    Eigen::Vector3<traact::Scalar> diff = line2.origin() - line1.origin();
+                    traact::Scalar distance = std::abs(n.dot(diff));
                     //SPDLOG_INFO("Camera {0} Point {1} to {2} {3}, distance {4}", camera_idx, point_idx, camera_idx2, point_idx2, distance);
                     if (distance < distance_threshold) {
                         current_candidate.AddCandidate(camera_idx2, point_idx2);
@@ -72,7 +72,7 @@ void traact::vision::FLOutsideInTracking::Compute() {
         std::vector<vision::CameraCalibration> calibrations(candidate_size);
         std::vector<spatial::Pose6D> cam2world_poses(candidate_size);
         //spatial::Position2DList image_points(candidate_size);
-        std::vector<Eigen::Vector2d> image_points(candidate_size);
+        std::vector<Eigen::Vector2<traact::Scalar>> image_points(candidate_size);
         spatial::Position3D result;
         int idx = 0;
         for (auto &tmp : good_candidates) {
@@ -83,22 +83,22 @@ void traact::vision::FLOutsideInTracking::Compute() {
             image_points[idx] = cameras_[camera_idx].input_[point_idx];
             idx++;
         }
-        //std::vector<double> covar(3*3);
+        //std::vector<traact::Scalar> covar(3*3);
         bool result_valid = traact::math::estimate_3d_point(result, cam2world_poses, calibrations, image_points);
         if (!result_valid)
             continue;
 
         for (int i = 0; i < cam2world_poses.size(); ++i) {
-            double error = math::reprojection_error(cam2world_poses[i], image_points[i], calibrations[i], result);
+            traact::Scalar error = math::reprojection_error(cam2world_poses[i], image_points[i], calibrations[i], result);
             if (error > 5)
                 result_valid = false;
         }
         if (!result_valid)
             continue;
 
-//        double stddev = 0;
+//        traact::Scalar stddev = 0;
 //        for (int i = 0; i < 3; ++i) {
-//            //double tmp = std::sqrt(covar[i+i*3]);
+//            //traact::Scalar tmp = std::sqrt(covar[i+i*3]);
 //            stddev += covar[i+i*3];
 //        }
 //        stddev = std::sqrt(stddev);
@@ -169,7 +169,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
         //SPDLOG_INFO("found model: {0}", found_correspondences.size());
 
 
-        std::vector<Eigen::Affine3d> cam2world;
+        std::vector<traact::spatial::Pose6D> cam2world;
         std::vector<vision::CameraCalibration> intrinsics;
         std::vector<spatial::Position2DList> image_point;
         size_t local_camera_idx = 0;
@@ -269,11 +269,11 @@ bool traact::vision::FLOutsideInTracking::IsModelPoint(size_t model_idx, size_t 
     for (int i = 0; i < model_distances.size(); ++i) {
         if (i == model_idx)
             continue;
-        double model_dist = model_distances[i];
+        traact::Scalar model_dist = model_distances[i];
         auto find_result = std::find_if(local_distances.begin(),
                                         local_distances.end(),
-                                        [model_dist](const std::pair<int, double> &value) {
-                                            double diff = std::abs(value.second - model_dist);
+                                        [model_dist](const std::pair<int, traact::Scalar> &value) {
+                                            traact::Scalar diff = std::abs(value.second - model_dist);
                                             return diff < 0.01;
                                         });
         if (find_result == local_distances.end())
@@ -317,7 +317,7 @@ void traact::vision::TrackingCamera::SetData(const traact::spatial::Pose6D *came
     calibration_ = *calibration;
     input_ = *input;
 
-    Eigen::Matrix3d intrinsics = Eigen::Matrix3d::Identity();
+    Eigen::Matrix3<traact::Scalar> intrinsics = Eigen::Matrix3<traact::Scalar>::Identity();
 
     intrinsics(0, 0) = calibration->fx;
     intrinsics(1, 1) = calibration->fy;
@@ -327,32 +327,32 @@ void traact::vision::TrackingCamera::SetData(const traact::spatial::Pose6D *came
     intrinsics(0, 2) = calibration->cx;
     intrinsics(1, 2) = calibration->cy;
 
-    Eigen::Matrix3d intrinsics_inv = intrinsics.inverse();
+    Eigen::Matrix3<traact::Scalar> intrinsics_inv = intrinsics.inverse();
 
     rays_.resize(input->size());
 
     spatial::Pose6D world2camera = camera2world->inverse();
 
     for (int i = 0; i < input->size(); ++i) {
-        Eigen::Vector3d p(input->at(i).x(), input->at(i).y(), 1);
-        Eigen::Vector3d direction = intrinsics_inv * p;
+        Eigen::Vector3<traact::Scalar> p(input->at(i).x(), input->at(i).y(), 1);
+        Eigen::Vector3<traact::Scalar> direction = intrinsics_inv * p;
         direction.normalize();
         direction = world2camera * direction;
         direction = direction - world2camera.translation();
         direction.normalize();
-        rays_[i] = Eigen::ParametrizedLine<double, 3>(world2camera.translation(), direction);
+        rays_[i] = Eigen::ParametrizedLine<traact::Scalar , 3>(world2camera.translation(), direction);
 
     }
 
 }
 
 std::vector<size_t>
-traact::vision::TrackingCamera::FindPoints(const traact::spatial::Position3D world2point, double max_distance) {
+traact::vision::TrackingCamera::FindPoints(const traact::spatial::Position3D world2point, traact::Scalar max_distance) {
     std::vector<size_t> result;
     spatial::Position2D image_point = math::reproject_point(camera2world_, calibration_, world2point);
-    double max_distance_squared = max_distance * max_distance;
+    traact::Scalar max_distance_squared = max_distance * max_distance;
     for (int i = 0; i < input_.size(); ++i) {
-        double distance = (input_[i] - image_point).squaredNorm();
+        traact::Scalar distance = (input_[i] - image_point).squaredNorm();
         if (distance < max_distance_squared)
             result.push_back(i);
     }

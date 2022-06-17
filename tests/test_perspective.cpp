@@ -27,34 +27,34 @@ TEST(TraactVisionTestSuite, ReprojectionTest_NoDistortion) {
     calibration.cx = calibration.width / 2.0 - 0.5;
     calibration.cy = calibration.height / 2.0 - 0.5;
 
-    cv::Mat opencv_intrinsics(3, 3, cv::DataType<double>::type);
-    opencv_intrinsics.at<double>(0, 0) = calibration.fx;
-    opencv_intrinsics.at<double>(1, 0) = 0;
-    opencv_intrinsics.at<double>(2, 0) = 0;
+    cv::Mat opencv_intrinsics(3, 3, cv::DataType<traact::Scalar>::type);
+    opencv_intrinsics.at<traact::Scalar>(0, 0) = calibration.fx;
+    opencv_intrinsics.at<traact::Scalar>(1, 0) = 0;
+    opencv_intrinsics.at<traact::Scalar>(2, 0) = 0;
 
-    opencv_intrinsics.at<double>(0, 1) = 0;
-    opencv_intrinsics.at<double>(1, 1) = calibration.fy;
-    opencv_intrinsics.at<double>(2, 1) = 0;
+    opencv_intrinsics.at<traact::Scalar>(0, 1) = 0;
+    opencv_intrinsics.at<traact::Scalar>(1, 1) = calibration.fy;
+    opencv_intrinsics.at<traact::Scalar>(2, 1) = 0;
 
-    opencv_intrinsics.at<double>(0, 2) = calibration.cx;
-    opencv_intrinsics.at<double>(1, 2) = calibration.cy;
-    opencv_intrinsics.at<double>(2, 2) = 1;
+    opencv_intrinsics.at<traact::Scalar>(0, 2) = calibration.cx;
+    opencv_intrinsics.at<traact::Scalar>(1, 2) = calibration.cy;
+    opencv_intrinsics.at<traact::Scalar>(2, 2) = 1;
 
-    cv::Mat opencv_distortion(4, 1, cv::DataType<double>::type);
-    opencv_distortion.at<double>(0) = 0;
-    opencv_distortion.at<double>(1) = 0;
-    opencv_distortion.at<double>(2) = 0;
-    opencv_distortion.at<double>(3) = 0;
+    cv::Mat opencv_distortion(4, 1, cv::DataType<traact::Scalar>::type);
+    opencv_distortion.at<traact::Scalar>(0) = 0;
+    opencv_distortion.at<traact::Scalar>(1) = 0;
+    opencv_distortion.at<traact::Scalar>(2) = 0;
+    opencv_distortion.at<traact::Scalar>(3) = 0;
 
-    cv::Mat tVec(3, 1, cv::DataType<double>::type);
-    tVec.at<double>(0) = 0;
-    tVec.at<double>(1) = 0;
-    tVec.at<double>(2) = 0;
+    cv::Mat tVec(3, 1, cv::DataType<traact::Scalar>::type);
+    tVec.at<traact::Scalar>(0) = 0;
+    tVec.at<traact::Scalar>(1) = 0;
+    tVec.at<traact::Scalar>(2) = 0;
 
-    cv::Mat rvec(3, 1, cv::DataType<double>::type);
-    rvec.at<double>(0) = 0;
-    rvec.at<double>(1) = 0;
-    rvec.at<double>(1) = 0;
+    cv::Mat rvec(3, 1, cv::DataType<traact::Scalar>::type);
+    rvec.at<traact::Scalar>(0) = 0;
+    rvec.at<traact::Scalar>(1) = 0;
+    rvec.at<traact::Scalar>(1) = 0;
 
 
     // in center in front of camera, must be in image center
@@ -62,11 +62,11 @@ TEST(TraactVisionTestSuite, ReprojectionTest_NoDistortion) {
         std::vector<cv::Point3d> opencv_point;
         std::vector<cv::Point2d> opencv_result;
         opencv_point.push_back(cv::Point3d(0, 0, -1));
-        Translation3d point(0, 0, -1);
+        Eigen::Vector3<traact::Scalar> point(0, 0, -1);
 
         cv::projectPoints(opencv_point, rvec, tVec, opencv_intrinsics, opencv_distortion, opencv_result);
 
-        auto result = reproject_point(calibration, point.translation());
+        auto result = reproject_point(calibration, point);
         EXPECT_EQ(result.x(), 319.5);
         EXPECT_EQ(result.y(), 239.5);
 
@@ -88,9 +88,9 @@ TEST(TraactVisionTestSuite, ReprojectionTest_NoDistortion) {
 
         for (int i = 0; i < opencv_point.size(); ++i) {
             const auto opencv_p = opencv_point[i];
-            Translation3d point(opencv_p.x, opencv_p.y, opencv_p.z);
+            Eigen::Vector3<traact::Scalar> point(opencv_p.x, opencv_p.y, opencv_p.z);
 
-            auto result = reproject_point(calibration, point.translation());
+            auto result = reproject_point(calibration, point);
             EXPECT_DOUBLE_EQ(result.x(), opencv_result[i].x);
             EXPECT_DOUBLE_EQ(result.y(), opencv_result[i].y);
         }

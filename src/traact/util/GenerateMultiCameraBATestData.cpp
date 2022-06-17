@@ -8,8 +8,8 @@
 void
 traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t camera_count, size_t width,
                                                   size_t height,
-                                                  spatial::Position3DList model_points, double point2d_noise,
-                                                  double camera_pos_noise, double camera_rot_noise,
+                                                  spatial::Position3DList model_points, traact::Scalar point2d_noise,
+                                                  traact::Scalar camera_pos_noise, traact::Scalar camera_rot_noise,
                                                   size_t noise_point_count) {
     max_count_ = data_count;
     model_points_ = model_points;
@@ -17,24 +17,24 @@ traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t came
     point2d_noise_ = point2d_noise;
     camera_pos_noise_ = camera_pos_noise;
     camera_rot_noise_ = camera_rot_noise;
-    double distance = 3;
+    traact::Scalar distance = 3;
 
-    Eigen::Vector3d target(0, 0, 0);
-    Eigen::Vector3d up(0, -1, 0);
-    Eigen::Vector3d position(distance, -distance, 0);
-    Eigen::Matrix3d R;
+    Eigen::Vector3<traact::Scalar> target(0, 0, 0);
+    Eigen::Vector3<traact::Scalar> up(0, -1, 0);
+    Eigen::Vector3<traact::Scalar> position(distance, -distance, 0);
+    Eigen::Matrix3<traact::Scalar> R;
     //R.col(2) = (position-target).normalized();
     R.col(2) = (target - position).normalized();
     R.col(0) = up.cross(R.col(2)).normalized();
     R.col(1) = R.col(2).cross(R.col(0));
-    Eigen::Matrix4d view_matrix;
+    Eigen::Matrix4<traact::Scalar> view_matrix;
     view_matrix.topLeftCorner<3, 3>() = R.transpose();
     view_matrix.topRightCorner<3, 1>() = -R.transpose() * position;
     //view_matrix.topRightCorner<3,1>() = R.transpose() * position;
     view_matrix.row(3) << 0, 0, 0, 1;
-    Eigen::Affine3d init_pose(view_matrix);
+    traact::spatial::Pose6D init_pose(view_matrix);
     init_pose = init_pose.inverse();
-    Eigen::AngleAxisd next_rot(2 * M_PI / camera_count, up);
+    Eigen::AngleAxis<traact::Scalar> next_rot(2 * M_PI / camera_count, up);
 
     unsigned long seed = 0;
     std::mt19937 gen(seed);
@@ -53,13 +53,13 @@ traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t came
 
         camera_data_[i].camera2world = init_pose.inverse();
 
-        Eigen::Vector3d pos_noise
+        Eigen::Vector3<traact::Scalar> pos_noise
             (camera_pos_noise_ * n_dist(gen), camera_pos_noise_ * n_dist(gen), camera_pos_noise_ * n_dist(gen));
-        Eigen::Quaterniond rot_noise
+        traact::spatial::Rotation3D rot_noise
             (1.0, camera_pos_noise_ * n_dist(gen), camera_pos_noise_ * n_dist(gen), camera_pos_noise_ * n_dist(gen));
         rot_noise.normalize();
-        Eigen::Affine3d pose_noise;
-        pose_noise.fromPositionOrientationScale(pos_noise, rot_noise, Eigen::Vector3d::Ones());
+        traact::spatial::Pose6D pose_noise;
+        pose_noise.fromPositionOrientationScale(pos_noise, rot_noise, Eigen::Vector3<traact::Scalar>::Ones());
         camera_data_[i].camera2world_noise = camera_data_[i].camera2world * pose_noise;
         init_pose.prerotate(next_rot);
 
@@ -71,13 +71,13 @@ traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t came
     for (int i = 0; i < data_count; ++i) {
         spatial::Pose6D current_pose;
         current_pose.setIdentity();
-        double r = i / static_cast<double>(data_count);
-        double px = std::sin(r * M_PI * 2);
-        double py = std::cos(r * M_PI * 2);
-        double pz = std::sin(-r * M_PI * 2);
+        traact::Scalar r = i / static_cast<traact::Scalar>(data_count);
+        traact::Scalar px = std::sin(r * M_PI * 2);
+        traact::Scalar py = std::cos(r * M_PI * 2);
+        traact::Scalar pz = std::sin(-r * M_PI * 2);
 
         spatial::Position3D pos(px, py, pz);
-        Eigen::Quaterniond rot(1.0 - r, r, 0, 0);
+        traact::spatial::Rotation3D rot(1.0 - r, r, 0, 0);
         rot.normalize();
         current_pose.translate(pos);
         current_pose.rotate(rot);

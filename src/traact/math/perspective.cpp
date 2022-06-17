@@ -11,17 +11,17 @@
 #include "traact/math/ceres/TargetReprojectionError.h"
 #include "traact/math/ceres/DistanceError3D3D.h"
 
-Eigen::Vector2d
-traact::math::reproject_point(const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3d &point) {
-//    Eigen::Vector2d result;
-//    Eigen::Matrix<double, 4,4> projection_matrix;
+Eigen::Vector2<traact::Scalar>
+traact::math::reproject_point(const traact::vision::CameraCalibration &intrinsics, const Eigen::Vector3<traact::Scalar> &point) {
+//    Eigen::Vector2<traact::Scalar> result;
+//    Eigen::Matrix<traact::Scalar, 4,4> projection_matrix;
 //
-//    projection_matrix.col(0) = Eigen::Vector4d(intrinsics.fx, 0,0,0);
-//    projection_matrix.col(1) = Eigen::Vector4d(0, intrinsics.fy,0,0);
-//    projection_matrix.col(2) = Eigen::Vector4d(intrinsics.cx, intrinsics.cy ,1,0);
-//    projection_matrix.col(3) = Eigen::Vector4d(0, 0,0,1);
+//    projection_matrix.col(0) = Eigen::Vector4<traact::Scalar>(intrinsics.fx, 0,0,0);
+//    projection_matrix.col(1) = Eigen::Vector4<traact::Scalar>(0, intrinsics.fy,0,0);
+//    projection_matrix.col(2) = Eigen::Vector4<traact::Scalar>(intrinsics.cx, intrinsics.cy ,1,0);
+//    projection_matrix.col(3) = Eigen::Vector4<traact::Scalar>(0, 0,0,1);
 //
-//    Eigen::Vector4d p(point.x(), point.y(), point.z(), 1);
+//    Eigen::Vector4<traact::Scalar> p(point.x(), point.y(), point.z(), 1);
 //
 //    auto tmp = projection_matrix * p;
 //
@@ -41,14 +41,14 @@ traact::math::reproject_point(const traact::vision::CameraCalibration &intrinsic
     cv::Mat tmp(1, 3, CV_32FC1);
     tmp.setTo(0);
     cv::projectPoints(obj_point, tmp, tmp, cv_intrinsics, cv_distortion, image_points);
-    return Eigen::Vector2d(image_points[0].x, image_points[0].y);
+    return Eigen::Vector2<traact::Scalar>(image_points[0].x, image_points[0].y);
 }
 
-Eigen::Vector2d
-traact::math::reproject_point(const Eigen::Affine3d &cam2world,
+Eigen::Vector2<traact::Scalar>
+traact::math::reproject_point(const traact::spatial::Pose6D &cam2world,
                               const traact::vision::CameraCalibration &intrinsics,
-                              const Eigen::Vector3d &point) {
-    Eigen::Vector3d p_tmp;
+                              const Eigen::Vector3<traact::Scalar> &point) {
+    Eigen::Vector3<traact::Scalar> p_tmp;
     p_tmp = cam2world * point;
     return reproject_point(intrinsics, p_tmp);
 }
@@ -63,8 +63,8 @@ bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const spat
     }
     cv::Mat opencv_intrinsics;
     cv::Mat opencv_distortion;
-    cv::Mat tvec(3, 1, cv::DataType<double>::type);
-    cv::Mat rvec(3, 1, cv::DataType<double>::type);
+    cv::Mat tvec(3, 1, cv::DataType<traact::Scalar>::type);
+    cv::Mat rvec(3, 1, cv::DataType<traact::Scalar>::type);
     std::vector<cv::Point2d> image_points_opencv;
     std::vector<cv::Point3d> model_points_opencv;
 
@@ -96,33 +96,33 @@ bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const spat
 
     cv::Mat R;
     cv::Rodrigues(rvec, R);
-    Eigen::Matrix3d R_eigen;
+    Eigen::Matrix3<traact::Scalar> R_eigen;
     cv2eigen(R, R_eigen);
-    Eigen::Vector3d T_eigen(tvec.at<double>(0), tvec.at<double>(1), tvec.at<double>(2));
+    Eigen::Vector3<traact::Scalar> T_eigen(tvec.at<traact::Scalar>(0), tvec.at<traact::Scalar>(1), tvec.at<traact::Scalar>(2));
 
-    Eigen::Matrix4d rotate_cs;
+    Eigen::Matrix4<traact::Scalar> rotate_cs;
     rotate_cs.setIdentity();
     rotate_cs(0, 0) = -1;
     rotate_cs(1, 1) = -1;
     rotate_cs(3, 3) = -1;
 
-    Eigen::Matrix4d Trans;
+    Eigen::Matrix4<traact::Scalar> Trans;
     Trans.setIdentity();
     Trans.block<3, 3>(0, 0) = R_eigen;
     Trans.block<3, 1>(0, 3) = T_eigen;
 
 
-    //pose_result = Eigen::Affine3d(Trans * rotate_cs);
-    pose_result = Eigen::Affine3d(Trans);
+    //pose_result = traact::spatial::Pose6D(Trans * rotate_cs);
+    pose_result = traact::spatial::Pose6D(Trans);
 
     return true;
 
 }
 
-bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
-                                     const std::vector<Eigen::Affine3d> &cam2world,
+bool traact::math::estimate_3d_point(Eigen::Vector3<traact::Scalar> &result,
+                                     const std::vector<traact::spatial::Pose6D> &cam2world,
                                      const std::vector<vision::CameraCalibration> &intrinsics,
-                                     const std::vector<Eigen::Vector2d> &image_point,
+                                     const std::vector<Eigen::Vector2<traact::Scalar>> &image_point,
                                      double *covariance_output) {
     if (intrinsics.size() != image_point.size() || cam2world.size() != image_point.size()) {
         SPDLOG_ERROR("size of cam2world or calibration differ from image points");
@@ -133,7 +133,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
         return false;
     }
 
-    Eigen::Vector3d p3d_init;
+    Eigen::Vector3<traact::Scalar> p3d_init;
     {
 
         cv::Mat proj1, proj2;
@@ -145,8 +145,8 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
         p2.push_back(eigen2cv(image_point[1]));
 
         cv::triangulatePoints(proj1, proj2, p1, p2, cv_result);
-        p3d_init = Eigen::Vector3d(cv_result.at<double>(0), cv_result.at<double>(1), cv_result.at<double>(2));
-        p3d_init = p3d_init / cv_result.at<double>(3);
+        p3d_init = Eigen::Vector3<traact::Scalar>(cv_result.at<traact::Scalar>(0), cv_result.at<traact::Scalar>(1), cv_result.at<traact::Scalar>(2));
+        p3d_init = p3d_init / cv_result.at<traact::Scalar>(3);
     }
 
     if (image_point.size() == 2) {
@@ -163,7 +163,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
 
     for (int i = 0; i < image_point.size(); ++i) {
 
-        //double* tmp = 0;//measurement_for_observation(i);
+        //traact::Scalar* tmp = 0;//measurement_for_observation(i);
         // all are single 3d points
         ceres::CostFunction *cost_function =
             PointReprojectionError::Create(image_point[i], cam2world[i], intrinsics[i], i);
@@ -180,7 +180,7 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
     //std::cout << summary.FullReport() << "\n";
-    result = Eigen::Vector3d(ceres_result[0], ceres_result[1], ceres_result[2]);
+    result = Eigen::Vector3<traact::Scalar>(ceres_result[0], ceres_result[1], ceres_result[2]);
 
     if (covariance_output && summary.IsSolutionUsable()) {
         ceres::Covariance::Options options;
@@ -201,26 +201,26 @@ bool traact::math::estimate_3d_point(Eigen::Vector3d &result,
     return summary.IsSolutionUsable();
 }
 
-Eigen::Matrix<double, 3, 4> traact::math::create_projection_matrix(const Eigen::Affine3d &cam2world,
+Eigen::Matrix<traact::Scalar, 3, 4> traact::math::create_projection_matrix(const traact::spatial::Pose6D &cam2world,
                                                                    const vision::CameraCalibration &calibration) {
-    Eigen::Matrix4d result;
+    Eigen::Matrix4<traact::Scalar> result;
 
-    Eigen::Matrix3d intrinsics;
+    Eigen::Matrix3<traact::Scalar> intrinsics;
 
     traact2eigen(calibration, intrinsics);
-    Eigen::Matrix4d tmp;
+    Eigen::Matrix4<traact::Scalar> tmp;
     tmp.setIdentity();
     tmp.block<3, 3>(0, 0) = intrinsics;
 
     result = tmp * cam2world.matrix();
 
-    return Eigen::Matrix<double, 3, 4>(result.block<3, 4>(0, 0));
+    return Eigen::Matrix<traact::Scalar, 3, 4>(result.block<3, 4>(0, 0));
 }
 
 void traact::math::undistort_points(const vision::CameraCalibration &dis_calibration,
                                     const vision::CameraCalibration &undis_calibration,
-                                    const std::vector<Eigen::Vector2d> &distorted_points,
-                                    std::vector<Eigen::Vector2d> &undistorted_points) {
+                                    const std::vector<Eigen::Vector2<traact::Scalar>> &distorted_points,
+                                    std::vector<Eigen::Vector2<traact::Scalar>> &undistorted_points) {
     cv::Mat dis_intrinsics, dis_distortion;
     cv::Mat undis_intrinsics, undis_distortion;
     traact2cv(dis_calibration, dis_intrinsics, dis_distortion);
@@ -237,18 +237,18 @@ void traact::math::undistort_points(const vision::CameraCalibration &dis_calibra
 
     undistorted_points.resize(distorted_points.size());
     for (int i = 0; i < distorted_points.size(); ++i) {
-        undistorted_points[i] = Eigen::Vector2d(dst[i].x, dst[i].y);
-        //undistorted_points[i] = Eigen::Vector2d(dst[i].x*calibration.fx+calibration.cx,dst[i].y*calibration.fy+calibration.cy);
+        undistorted_points[i] = Eigen::Vector2<traact::Scalar>(dst[i].x, dst[i].y);
+        //undistorted_points[i] = Eigen::Vector2<traact::Scalar>(dst[i].x*calibration.fx+calibration.cx,dst[i].y*calibration.fy+calibration.cy);
 
     }
 
 }
 
-double traact::math::average_reprojection_error(const Eigen::Affine3d &cam2world,
+traact::Scalar traact::math::average_reprojection_error(const traact::spatial::Pose6D &cam2world,
                                                 const spatial::Position2DList &image_points,
                                                 const traact::vision::CameraCalibration &intrinsics,
                                                 const spatial::Position3DList &model_points) {
-    double error = 0;
+    traact::Scalar error = 0;
     for (int i = 0; i < image_points.size(); ++i) {
         auto reprojected_point = reproject_point(cam2world, intrinsics, model_points[i]);
         error += (reprojected_point - image_points[i]).squaredNorm();
@@ -258,7 +258,7 @@ double traact::math::average_reprojection_error(const Eigen::Affine3d &cam2world
     return std::sqrt(error);
 }
 
-bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::vector<Eigen::Affine3d> &cam2world,
+bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::vector<traact::spatial::Pose6D> &cam2world,
                                     const std::vector<vision::CameraCalibration> &intrinsics,
                                     const std::vector<spatial::Position2DList> &image_point,
                                     const spatial::Position3DList &model, double *covariance_output) {
@@ -288,8 +288,8 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
     bool init_result = estimate_camera_pose(init_cam2target, image_point[0], intrinsics[0], model);
     if (init_result) {
         spatial::Pose6D init_pose = cam2world[0].inverse() * init_cam2target;
-        Eigen::Vector3d init_pos = init_pose.translation();
-        Eigen::Quaterniond init_rot(init_pose.rotation());
+        Eigen::Vector3<traact::Scalar> init_pos = init_pose.translation();
+        traact::spatial::Rotation3D init_rot(init_pose.rotation());
         ceres_result[0] = init_rot.w();
         ceres_result[1] = init_rot.x();
         ceres_result[2] = init_rot.y();
@@ -304,7 +304,7 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
 
     for (int i = 0; i < image_point.size(); ++i) {
 
-        //double* tmp = 0;//measurement_for_observation(i);
+        //traact::Scalar* tmp = 0;//measurement_for_observation(i);
         // all are single 3d points
         ceres::CostFunction
             *cost_function = TargetReprojectionErrorFactory::Create(image_point[i], cam2world[i], intrinsics[i], model);
@@ -322,9 +322,9 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
     ceres::Solve(options, &problem, &summary);
     //std::cout << summary.FullReport() << "\n";
     //SPDLOG_INFO(summary.FullReport());
-    Eigen::Quaterniond
-        result_rot = Eigen::Quaterniond(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
-    Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4], ceres_result[5], ceres_result[6]);
+    traact::spatial::Rotation3D
+        result_rot = traact::spatial::Rotation3D(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
+    Eigen::Vector3<traact::Scalar> result_pos = Eigen::Vector3<traact::Scalar>(ceres_result[4], ceres_result[5], ceres_result[6]);
     result.setIdentity();
     result.translate(result_pos);
     result.rotate(result_rot);
@@ -384,9 +384,9 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const traac
     ceres::Solve(options, &problem, &summary);
     //std::cout << summary.FullReport() << "\n";
     //SPDLOG_INFO(summary.FullReport());
-    Eigen::Quaterniond
-        result_rot = Eigen::Quaterniond(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
-    Eigen::Vector3d result_pos = Eigen::Vector3d(ceres_result[4], ceres_result[5], ceres_result[6]);
+    traact::spatial::Rotation3D
+        result_rot = traact::spatial::Rotation3D(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
+    Eigen::Vector3<traact::Scalar> result_pos = Eigen::Vector3<traact::Scalar>(ceres_result[4], ceres_result[5], ceres_result[6]);
     result.setIdentity();
     result.translate(result_pos);
     result.rotate(result_rot);
@@ -406,8 +406,8 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const traac
     return summary.IsSolutionUsable();
 }
 
-double
-traact::math::reprojection_error(const Eigen::Affine3d &cam2world, const traact::spatial::Position2D &image_points,
+traact::Scalar
+traact::math::reprojection_error(const traact::spatial::Pose6D &cam2world, const traact::spatial::Position2D &image_points,
                                  const traact::vision::CameraCalibration &intrinsics,
                                  const traact::spatial::Position3D &model_points) {
     auto reprojected_point = reproject_point(cam2world, intrinsics, model_points);

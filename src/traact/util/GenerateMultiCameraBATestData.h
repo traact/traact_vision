@@ -17,8 +17,8 @@ struct GenerateMultiCameraBATestDataCamera {
 class GenerateMultiCameraBATestData {
  public:
     void Init(size_t data_count, size_t camera_count, size_t width, size_t height,
-              spatial::Position3DList model_points, double point2d_noise, double camera_pos_noise,
-              double camera_rot_noise,
+              spatial::Position3DList model_points, traact::Scalar point2d_noise, traact::Scalar camera_pos_noise,
+              traact::Scalar camera_rot_noise,
               size_t noise_point_count);
     std::vector<GenerateMultiCameraBATestDataCamera> GetCameraData();
 
@@ -32,9 +32,9 @@ class GenerateMultiCameraBATestData {
  protected:
     size_t max_count_;
     size_t current_count_{0};
-    double point2d_noise_{0};
-    double camera_pos_noise_{0};
-    double camera_rot_noise_{0};
+    traact::Scalar point2d_noise_{0};
+    traact::Scalar camera_pos_noise_{0};
+    traact::Scalar camera_rot_noise_{0};
     std::vector<GenerateMultiCameraBATestDataCamera> camera_data_;
     std::vector<spatial::Pose6D> expected_pose_;
     std::vector<std::vector<spatial::Position2DList>> reference_point2d_;

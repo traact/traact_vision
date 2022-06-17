@@ -25,7 +25,7 @@ class TraactPackage(ConanFile):
     def requirements(self):
         self.traact_requires("traact_spatial", "latest")
         self.requires("cuda_dev_config/[>=2.0]@camposs/stable")
-        self.requires("opencv/4.5.0@camposs/stable")
+        self.requires("opencv/4.5.5@camposs/stable")
         if self.options.with_tests:
             self.requires("gtest/[>=1.11.0]")
 

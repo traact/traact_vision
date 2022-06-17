@@ -13,27 +13,27 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 
-void test_pose(const Eigen::Affine3d &marker_pose, const traact::vision::CameraCalibration &calibration) {
+void test_pose(const traact::spatial::Pose6D &marker_pose, const traact::vision::CameraCalibration &calibration) {
     using namespace traact::math;
     using namespace traact::vision;
     using namespace Eigen;
 
-    std::vector<Translation3d> marker_corners_local;
-    std::vector<Affine3d> marker_corners;
+    std::vector<traact::spatial::Translation3D> marker_corners_local;
+    std::vector<traact::spatial::Pose6D> marker_corners;
 
 
     /*
-    marker_corners_local.push_back(Translation3d(0.2,0.2,0));
-    marker_corners_local.push_back(Translation3d(0.2,-0.2,0));
-    marker_corners_local.push_back(Translation3d(-0.2,-0.2,0));
-    marker_corners_local.push_back(Translation3d(-0.2,0.2,0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0.2,0.2,0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0.2,-0.2,0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(-0.2,-0.2,0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(-0.2,0.2,0));
 */
 
 
-    marker_corners_local.push_back(Eigen::Translation3d(0, 0, 0));
-    marker_corners_local.push_back(Eigen::Translation3d(0.384, 0, 0));
-    marker_corners_local.push_back(Eigen::Translation3d(0, 0.114, 0));
-    marker_corners_local.push_back(Eigen::Translation3d(0.225, 0, 0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0, 0, 0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0.384, 0, 0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0, 0.114, 0));
+    marker_corners_local.push_back(traact::spatial::Translation3D(0.225, 0, 0));
 
     traact::spatial::Position2DList marker_corners_2d;
     traact::spatial::Position3DList marker_model;
@@ -44,7 +44,7 @@ void test_pose(const Eigen::Affine3d &marker_pose, const traact::vision::CameraC
         marker_model.push_back(marker_corners_local[i].translation());
     }
 
-    Affine3d camera_pose, pose_result;
+    traact::spatial::Pose6D camera_pose, pose_result;
     EXPECT_TRUE(traact::math::estimate_camera_pose(pose_result, marker_corners_2d, calibration, marker_model));
     //pose_result = camera_pose.inverse();
 
@@ -52,8 +52,8 @@ void test_pose(const Eigen::Affine3d &marker_pose, const traact::vision::CameraC
     EXPECT_NEAR(marker_pose.translation().y(), pose_result.translation().y(), 1e-6);
     EXPECT_NEAR(marker_pose.translation().z(), pose_result.translation().z(), 1e-6);
 
-    Quaterniond rot_marker(marker_pose.rotation());
-    Quaterniond rot_result(pose_result.rotation());
+    traact::spatial::Rotation3D rot_marker(marker_pose.rotation());
+    traact::spatial::Rotation3D rot_result(pose_result.rotation());
 
     EXPECT_NEAR(rot_marker.x(), rot_result.x(), 1e-6);
     EXPECT_NEAR(rot_marker.y(), rot_result.y(), 1e-6);
@@ -75,29 +75,29 @@ TEST(TraactVisionTestSuite, PoseEstimationTest_NoDistortion) {
     calibration.cx = calibration.width / 2.0 - 0.5;
     calibration.cy = calibration.height / 2.0 - 0.5;
 
-    Affine3d marker_pose;
-    marker_pose = Translation3d(1, 2, 3);
+    traact::spatial::Pose6D marker_pose;
+    marker_pose = traact::spatial::Translation3D(1, 2, 3);
     //test_pose(marker_pose, calibration);
-    marker_pose.rotate(AngleAxisd(M_PI, Vector3d::UnitZ()));
-    //test_pose(marker_pose, calibration);
-
-    marker_pose = Translation3d(0.1, 0.2, 4) * AngleAxisd(M_PI / 16, Vector3d::UnitY());
+    marker_pose.rotate(AngleAxis<traact::Scalar>(M_PI, Vector3<traact::Scalar>::UnitZ()));
     //test_pose(marker_pose, calibration);
 
-    marker_pose = Translation3d(0.3, -0.5, 2) * AngleAxisd(M_PI / 16, Vector3d::UnitX());
+    marker_pose = traact::spatial::Translation3D(0.1, 0.2, 4) * AngleAxis<traact::Scalar>(M_PI / 16, Vector3<traact::Scalar>::UnitY());
+    //test_pose(marker_pose, calibration);
+
+    marker_pose = traact::spatial::Translation3D(0.3, -0.5, 2) * AngleAxis<traact::Scalar>(M_PI / 16, Vector3<traact::Scalar>::UnitX());
     //test_pose(marker_pose, calibration);
 
 
     for (int i = 0; i < 100; ++i) {
-        Vector3d pos;
-        Vector4d rot;
+        Vector3<traact::Scalar> pos;
+        Vector4<traact::Scalar> rot;
         pos.setRandom();
         rot.setRandom();
-        Quaterniond rotq(rot);
+        traact::spatial::Rotation3D rotq(rot);
         rotq.normalize();
         pos.z() += 3;
 
-        Affine3d pose = Translation3d(pos) * rotq;
+        traact::spatial::Pose6D pose = traact::spatial::Translation3D(pos) * rotq;
         //test_pose(pose, calibration);
 
     }

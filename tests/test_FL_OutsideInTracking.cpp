@@ -32,7 +32,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
     int width = 640;
     int height = 480;
 
-    Position3DList model_points;
+    spatial::Position3DList model_points;
     model_points.push_back(spatial::Position3D(0, 0, 0));
 //    model_points.push_back(spatial::Position3D(0.13252583341776236,0,0));
 //    model_points.push_back(spatial::Position3D(0.34277024217893495, 0.12163979580583522,0));
@@ -86,7 +86,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
             //SPDLOG_INFO("valid result {0} {1} {2}", world2target_pose.translation().x(), world2target_pose.translation().y(), world2target_pose.translation().z());
             spatial::Pose6D expected_pose = test_data.GetTargetPose(mea_idx);
             spatial::Pose6D diff_pose = world2target_pose * expected_pose.inverse();
-            Eigen::Quaterniond diff_rot(diff_pose.rotation());
+            traact::spatial::Rotation3D diff_rot(diff_pose.rotation());
             diff_rot.normalize();
             EXPECT_NEAR(diff_pose.translation().norm(), 0, 0.001);
             EXPECT_NEAR(diff_rot.x(), 0, 0.001);
@@ -166,7 +166,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
     int width = 640;
     int height = 480;
 
-    Position3DList model_points;
+    spatial::Position3DList model_points;
     model_points.push_back(spatial::Position3D(0, 0, 0));
 //    model_points.push_back(spatial::Position3D(0.13252583341776236,0,0));
 //    model_points.push_back(spatial::Position3D(0.34277024217893495, 0.12163979580583522,0));
@@ -238,11 +238,11 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 
         for (int model_idx = 0; model_idx < model_points.size(); ++model_idx) {
             int found_count = 0;
-            double distance = 0;
-            Eigen::Vector3d model_world2point = test_data.GetTargetPose(mea_idx) * model_points[model_idx];
+            traact::Scalar distance = 0;
+            Eigen::Vector3<traact::Scalar> model_world2point = test_data.GetTargetPose(mea_idx) * model_points[model_idx];
             for (int point_idx = 0; point_idx < reconstructed_points.size(); ++point_idx) {
 
-                Eigen::Vector3d diff = model_world2point - reconstructed_points[point_idx];
+                Eigen::Vector3<traact::Scalar> diff = model_world2point - reconstructed_points[point_idx];
                 if (diff.norm() < 0.01) {
                     ++found_count;
                     distance = diff.norm();
@@ -272,7 +272,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 
 
 //            spatial::Pose6D diff_pose = world2target_pose * expected_pose.inverse();
-//            Eigen::Quaterniond diff_rot(diff_pose.rotation());
+//            traact::spatial::Rotation3D diff_rot(diff_pose.rotation());
 //            diff_rot.normalize();
 //            EXPECT_NEAR(diff_pose.translation().norm(), 0, 0.02);
 //            EXPECT_NEAR(diff_rot.x(), 0, 0.01);
@@ -318,7 +318,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 //            }
 
             for (int j = 0; j < point3d_result.size(); ++j) {
-                double color_factor = static_cast<double>(255) / point3d_result.size();
+                traact::Scalar color_factor = static_cast<traact::Scalar>(255) / point3d_result.size();
                 spatial::Position2D
                     p = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, point3d_result[j]);
                 cv::circle(debug_images[i], eigen2cv(p), 5, distinct_colors[j], 1);

@@ -9,7 +9,7 @@
 #include <traact/vision_datatypes.h>
 
 namespace traact {
-static inline void traact2eigen(const vision::CameraCalibration &calibration, Eigen::Matrix3d &intrinsics) {
+static inline void traact2eigen(const vision::CameraCalibration &calibration, Eigen::Matrix3<traact::Scalar> &intrinsics) {
     intrinsics.setIdentity();
     intrinsics(0, 0) = calibration.fx;
     intrinsics(1, 1) = calibration.fy;

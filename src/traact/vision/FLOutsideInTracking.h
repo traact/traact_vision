@@ -24,8 +24,8 @@ class TrackingCamera {
     void SetData(const traact::spatial::Pose6D *camera2world,
                  const traact::vision::CameraCalibration *calibration,
                  const traact::spatial::Position2DList *input);
-    std::vector<size_t> FindPoints(const spatial::Position3D world2point, double max_distance);
-    std::vector<Eigen::ParametrizedLine<double, 3> > rays_;
+    std::vector<size_t> FindPoints(const spatial::Position3D world2point, traact::Scalar max_distance);
+    std::vector<Eigen::ParametrizedLine<traact::Scalar , 3> > rays_;
     spatial::Pose6D camera2world_;
     traact::vision::CameraCalibration calibration_;
     spatial::Position2DList input_;
@@ -61,8 +61,8 @@ class FLOutsideInTracking {
     bool IsModelPoint(size_t model_idx, size_t point_idx);
     std::map<size_t, size_t> RecursiveFindModel(size_t cur_model_idx, size_t model_count,
                                                 std::map<size_t, size_t> correspondences);
-    std::vector<std::vector<double> > distances_model_;
-    std::vector<std::vector<std::pair<int, double> > > distances_all_;
+    std::vector<std::vector<traact::Scalar> > distances_model_;
+    std::vector<std::vector<std::pair<int, traact::Scalar> > > distances_all_;
 };
 }
 

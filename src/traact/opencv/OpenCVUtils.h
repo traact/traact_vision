@@ -5,46 +5,53 @@
 
 #include <traact/vision_datatypes.h>
 #include <traact/spatial.h>
+#include <traact/vision.h>
 #include <opencv2/opencv.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <opencv2/core/eigen.hpp>
 namespace traact {
 
-static inline cv::Point2d eigen2cv(const Eigen::Vector2d p) {
-    return cv::Point2d(p.x(), p.y());
+static inline vision::Position2D eigen2cv(const Eigen::Vector2<Scalar> p) {
+    return vision::Position2D(p.x(), p.y());
 }
 
-static inline cv::Point3d eigen2cv(const Eigen::Vector3d p) {
-    return cv::Point3d(p.x(), p.y(), p.z());
+static inline vision::Position3D eigen2cv(const Eigen::Vector3<Scalar> p) {
+    return vision::Position3D(p.x(), p.y(), p.z());
 }
 
-static inline Eigen::Vector3d cv2eigen(const cv::Point3d p) {
-    return Eigen::Vector3d(p.x, p.y, p.z);
+static inline Eigen::Vector3<Scalar> cv2eigen(const vision::Position3D p) {
+    return Eigen::Vector3<Scalar>(p.x, p.y, p.z);
 }
 
 
 static inline void traact2cv(const spatial::Pose6D &pose, cv::Mat &rvec, cv::Mat &tvec) {
-
+    if constexpr(std::is_same_v<Scalar, float>){
+        rvec = cv::Mat(1, 3, CV_32F);
+        tvec = cv::Mat(1, 3, CV_32F);
+    } else {
+        rvec = cv::Mat(1, 3, CV_64F);
+        tvec = cv::Mat(1, 3, CV_64F);
+    }
     spatial::Position3D trans = pose.translation();
-    rvec = cv::Mat(1, 3, CV_64F);
-    tvec = cv::Mat(1, 3, CV_64F);
-    memcpy(tvec.data, trans.data(), sizeof(double) * 3);
-    Eigen::Matrix3d rot_mat = pose.rotation();
+
+    memcpy(tvec.data, trans.data(), sizeof(Scalar) * 3);
+    Eigen::Matrix3<traact::Scalar> rot_mat = pose.rotation();
     cv::Mat cv_rot_mat;
     cv::eigen2cv(rot_mat, cv_rot_mat);
     cv::Rodrigues(cv_rot_mat, rvec);
 }
 
-static inline void cv2traact(const cv::Vec3d &rvec, const cv::Vec3d &tvec, spatial::Pose6D &pose) {
+
+static inline void cv2traact(const cv::Vec<Scalar, 3> &rvec, const cv::Vec<Scalar, 3> &tvec, spatial::Pose6D &pose) {
 
     cv::Mat R;
     cv::Rodrigues(rvec, R);
-    Eigen::Matrix3d R_eigen;
+    Eigen::Matrix3<traact::Scalar> R_eigen;
     cv2eigen(R, R_eigen);
-    Eigen::Vector3d T_eigen(tvec[0], tvec[1], tvec[2]);
+    Eigen::Vector3<traact::Scalar> T_eigen(tvec[0], tvec[1], tvec[2]);
 
-    Eigen::Matrix4d Trans;
+    Eigen::Matrix4<traact::Scalar> Trans;
     Trans.setIdentity();
     Trans.block<3, 3>(0, 0) = R_eigen;
     Trans.block<3, 1>(0, 3) = T_eigen;

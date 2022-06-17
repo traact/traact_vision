@@ -1,26 +1,26 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#ifndef TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_VISION_H_
-#define TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_VISION_H_
+#ifndef TRAACT_VISION_SRC_TRAACT_VISION_H_
+#define TRAACT_VISION_SRC_TRAACT_VISION_H_
 
 #include "vision_datatypes.h"
 #include "traact/traact.h"
 #include "traact/vision/Image.h"
 
-namespace traact {
-
-void *getData(cv::Mat &buffer);
-
-size_t getDataLength(cv::Mat &buffer);
-
-
-void *getData(std::vector<uint8_t> &buffer);
-
-size_t getDataLength(std::vector<uint8_t> &buffer);
-
-}
 
 namespace traact::vision {
+
+using Position2D = cv::Point_<traact::Scalar>;
+using Position3D = cv::Point3_<traact::Scalar>;
+using Position2DList = std::vector<Position2D>;
+using Position3DList = std::vector<Position3D>;
+using KeyPointList = std::vector<cv::KeyPoint>;
+
+CREATE_TRAACT_HEADER_TYPE(Position2DHeader, traact::vision::Position2D, "vision:Position2D", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(Position3DHeader, traact::vision::Position3D, "vision:Position3D", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(Position2DListHeader, traact::vision::Position2DList, "vision:Position2DList", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(Position3DListHeader, traact::vision::Position3DList, "vision:Position3DList", TRAACT_VISION_EXPORT)
+
 CREATE_TRAACT_HEADER_TYPE(CameraCalibrationHeader,
                           traact::vision::CameraCalibration,
                           "vision:CameraCalibration",
@@ -47,32 +47,28 @@ class TRAACT_VISION_EXPORT ImageHeaderFactory : public traact::buffer::Templated
  TRAACT_PLUGIN_ENABLE(traact::buffer::TemplatedDefaultDataFactory<ImageHeader>, traact::buffer::DataFactory)
 };
 
-int getOpenCvType(const ImageHeader &header);
-void setOpenCvType(const cv::Mat &opencv_type, ImageHeader &header);
 
 int getOpenCvDepth(BaseType type);
 
 }
 
-template<>
-[[maybe_unused]] inline cv::Mat getBufferAs(const traact::vision::ImageHeader &header, const traact::vision::Image &data){
-    return data.getImage();
-}
-
-template<>
-[[maybe_unused]] inline cv::Mat getBufferAs(const traact::vision::ImageHeader &header, traact::vision::Image &data){
-    return data.getImage();
-}
-
 
 #define CREATE_VISION_COMPONENTS(external_component) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, ImageHeader) \
-CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, CameraCalibrationHeader)
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, CameraCalibrationHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position2DHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position2DListHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DListHeader)
 
 
 #define REGISTER_VISION_COMPONENTS(external_component) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, ImageHeader) \
-REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, CameraCalibrationHeader)
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, CameraCalibrationHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position2DHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position2DListHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DListHeader)
 
 
-#endif //TRAACTMULTI_TRAACT_VISION_INCLUDE_TRAACT_VISION_H_
+#endif //TRAACT_VISION_SRC_TRAACT_VISION_H_

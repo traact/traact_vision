@@ -17,7 +17,7 @@ class UndistortionHelper {
     void Init(const CameraCalibration &calibration,
               bool optimize_intrinsics = false,
               bool center_principle_point = true,
-              double alpha = 0);
+              traact::Scalar alpha = 0);
 
     CameraCalibration GetUndistortedCalibration();
 
