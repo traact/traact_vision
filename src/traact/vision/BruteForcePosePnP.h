@@ -5,6 +5,12 @@
 #include "traact/vision.h"
 namespace traact::vision {
 
+Scalar testCombination(const Position2DList &points_2D,
+                         const Position3DList &points_3D,
+                         const CameraCalibration &calibration,
+                         spatial::Pose6D &output,
+                         std::vector<size_t> point_index);
+
 bool testAllCombinations(const Position2DList &points_2d,
                          const Position3DList &points_3d,
                          const CameraCalibration &calibration,

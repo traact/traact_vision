@@ -66,9 +66,8 @@ bool testAllCombinations(const Position2DList &points_2d,
                                          cv::SOLVEPNP_ITERATIVE);
         if (local_result) {
 
-
             spatial::Pose6D pose;
-            cv2traact(r_vec,t_vec, pose);
+            cv2traact(r_vec, t_vec, pose);
             double error = traact::math::reprojectionError(pose, cur_image_points, calibration, points_3d);
 
             if (error < max_error && error < current_min_error) {
@@ -143,4 +142,38 @@ bool tryClusterCombinations(const Position2DList &points2d,
 
     return false;
 }
+Scalar testCombination(const Position2DList &points_2D,
+                       const Position3DList &points_3D,
+                       const CameraCalibration &calibration,
+                       spatial::Pose6D &output,
+                       std::vector<size_t> point_index) {
+
+    Position2DList cur_image_points;
+    cur_image_points.resize(points_3D.size());
+    for (int index = 0; index < points_3D.size(); ++index) {
+        cur_image_points[index] = points_2D[point_index[index]];
+    }
+
+    auto [opencv_intrinsics, opencv_distortion] = traact2cv(calibration);
+
+    cv::Mat t_vec(3, 1, cv::DataType<traact::Scalar>::type);
+    cv::Mat r_vec(3, 1, cv::DataType<traact::Scalar>::type);
+    bool local_result = cv::solvePnP(points_3D,
+                                     cur_image_points,
+                                     opencv_intrinsics,
+                                     opencv_distortion,
+                                     r_vec,
+                                     t_vec,
+                                     false,
+                                     cv::SOLVEPNP_ITERATIVE);
+    if (local_result) {
+        spatial::Pose6D pose;
+        cv2traact(r_vec, t_vec, pose);
+        double error = traact::math::reprojectionError(pose, cur_image_points, calibration, points_3D);
+
+        return error;
+    }
+    return std::numeric_limits<Scalar>::max();
+}
+
 } // traact

@@ -350,6 +350,13 @@ traact::Scalar traact::math::reprojectionError(const traact::spatial::Pose6D &ca
     return std::sqrt(error);
 
 }
+traact::Scalar traact::math::reprojectionError(const traact::spatial::Pose6D &camera_to_world,
+                                               const traact::vision::Position2D &image_points,
+                                               const traact::vision::CameraCalibration &intrinsics,
+                                               const traact::vision::Position3D &world_to_points) {
+
+    return reprojectionError(camera_to_world, vision::Position2DList {image_points}, intrinsics, vision::Position3DList {world_to_points});
+}
 
 
 

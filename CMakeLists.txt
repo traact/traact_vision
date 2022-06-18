@@ -16,7 +16,7 @@ set(VISION_SRC src/traact/vision.h src/traact/traact_vision_export.h
         src/traact/component/vision/BasicVisionPattern.h
         src/traact/vision/SubPixelEdgeDectection.h
         src/traact/vision.cpp src/traact/math/perspective.cpp src/traact/math/perspective.h src/traact/vision_datatypes.h src/traact/opencv/OpenCVUtils.h src/traact/math/ceres/PointReprojectionError.h src/traact/math/utils.h src/traact/vision/UndistortionHelper.cpp src/traact/vision/UndistortionHelper.h
-        src/traact/vision/FLOutsideInTracking.cpp src/traact/vision/FLOutsideInTracking.h src/traact/util/GenerateMultiCameraBATestData.cpp src/traact/util/GenerateMultiCameraBATestData.h src/traact/math/ceres/TargetReprojectionError.h src/traact/math/ceres/DistanceError3D3D.h src/traact/vision/Image.cpp src/traact/vision/Image.h src/traact/vision/BruteForcePosePnP.cpp src/traact/vision/BruteForcePosePnP.h)
+        src/traact/util/GenerateMultiCameraBATestData.cpp src/traact/util/GenerateMultiCameraBATestData.h src/traact/math/ceres/TargetReprojectionError.h src/traact/math/ceres/DistanceError3D3D.h src/traact/vision/Image.cpp src/traact/vision/Image.h src/traact/vision/BruteForcePosePnP.cpp src/traact/vision/BruteForcePosePnP.h src/traact/vision/outside_in/Point3DCandidate.cpp src/traact/vision/outside_in/Point3DCandidate.h src/traact/vision/outside_in/TrackingCamera.cpp src/traact/vision/outside_in/TrackingCamera.h src/traact/vision/outside_in/PointEstimation.cpp src/traact/vision/outside_in/PointEstimation.h src/traact/vision/outside_in/FindTargetPoints.cpp src/traact/vision/outside_in/FindTargetPoints.h)
 
 
 add_library(${CONAN_PACKAGE_NAME} SHARED ${VISION_SRC})

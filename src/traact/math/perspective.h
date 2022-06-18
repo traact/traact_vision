@@ -53,6 +53,10 @@ traact::Scalar reprojectionError(const traact::spatial::Pose6D &camera_to_world,
                                  const vision::CameraCalibration &intrinsics,
                                  const vision::Position3DList &world_to_points);
 
+traact::Scalar reprojectionError(const traact::spatial::Pose6D &camera_to_world,
+                                 const vision::Position2D &image_points,
+                                 const vision::CameraCalibration &intrinsics,
+                                 const vision::Position3D &world_to_points);
 }
 
 #endif //TRAACTMULTI_PERSPECTIVE_H

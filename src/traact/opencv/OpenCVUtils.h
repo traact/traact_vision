@@ -59,7 +59,7 @@ static inline void cv2traact(const cv::Vec<Scalar, 3> &rvec, const cv::Vec<Scala
     pose = spatial::Pose6D(Trans);
 }
 
-static inline void traact2cv(const vision::CameraCalibration &calibration, cv::Mat &intrinsics, cv::Mat &distortion) {
+static inline std::tuple<cv::Mat, cv::Mat> traact2cv(const vision::CameraCalibration &calibration) {
     cv::Mat opencv_intrinsics(3, 3, cv::DataType<float>::type);
     opencv_intrinsics.at<float>(0, 0) = calibration.fx;
     opencv_intrinsics.at<float>(1, 0) = 0;
@@ -72,8 +72,6 @@ static inline void traact2cv(const vision::CameraCalibration &calibration, cv::M
     opencv_intrinsics.at<float>(0, 2) = calibration.cx;
     opencv_intrinsics.at<float>(1, 2) = calibration.cy;
     opencv_intrinsics.at<float>(2, 2) = 1;
-
-    intrinsics = opencv_intrinsics;
 
     size_t count_parameter = calibration.radial_distortion.size() + calibration.tangential_distortion.size();
     cv::Mat opencv_distortion;
@@ -105,8 +103,14 @@ static inline void traact2cv(const vision::CameraCalibration &calibration, cv::M
 
     }
 
-    distortion = opencv_distortion;
+    return {opencv_intrinsics, opencv_distortion};
 
+}
+
+static inline void traact2cv(const vision::CameraCalibration &calibration, cv::Mat &intrinsics, cv::Mat &distortion) {
+    auto [intrinsics_value, distortion_value] = traact2cv(calibration);
+    intrinsics = intrinsics_value;
+    distortion = distortion_value;
 }
 
 static inline void cv2traact(vision::CameraCalibration &calibration,
