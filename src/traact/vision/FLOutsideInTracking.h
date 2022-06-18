@@ -11,7 +11,7 @@ namespace traact::vision {
 class Point3DCandidate {
  public:
     std::map<size_t, std::set<size_t> > candidate_points;
-    spatial::Position3D point;
+    vision::Position3D point;
 
     std::map<size_t, size_t> GetGoodCandidates();
     void RemoveCandidate(size_t camera_idx, size_t point_idx);
@@ -23,13 +23,13 @@ class TrackingCamera {
  public:
     void SetData(const traact::spatial::Pose6D *camera2world,
                  const traact::vision::CameraCalibration *calibration,
-                 const traact::spatial::Position2DList *input);
-    std::vector<size_t> FindPoints(const spatial::Position3D world2point, traact::Scalar max_distance);
+                 const traact::vision::Position2DList *input);
+    std::vector<size_t> FindPoints(const vision::Position3D world2point, traact::Scalar max_distance);
     std::vector<Eigen::ParametrizedLine<traact::Scalar , 3> > rays_;
     spatial::Pose6D camera2world_;
     traact::vision::CameraCalibration calibration_;
-    spatial::Position2DList input_;
-    spatial::Position2DList *output_;
+    vision::Position2DList input_;
+    vision::Position2DList *output_;
 };
 
 class FLOutsideInTracking {
@@ -39,21 +39,21 @@ class FLOutsideInTracking {
     void SetCountCameras(size_t count);
     void SetData(size_t idx, const spatial::Pose6D *camera2world,
                  const traact::vision::CameraCalibration *calibration,
-                 const spatial::Position2DList *input);
+                 const vision::Position2DList *input);
     void Compute();
-    spatial::Position3DList Get3DPoints();
+    vision::Position3DList Get3DPoints();
     /**
      * [camera idx][3d point idx]
      * @return
      */
-    std::vector<std::vector<spatial::Position2D> > Get3DPoints2DCorrespondence();
+    std::vector<std::vector<vision::Position2D> > Get3DPoints2DCorrespondence();
 
-    bool FindTarget(const spatial::Position3DList &model_points, spatial::Pose6D &output,
-                    std::vector<spatial::Position2DList *> *output_points,
-                    spatial::Position3DList *output_target_points);
+    bool FindTarget(const vision::Position3DList &model_points, spatial::Pose6D &output,
+                    std::vector<vision::Position2DList *> *output_points,
+                    vision::Position3DList *output_target_points);
 
     std::vector<TrackingCamera> cameras_;
-    traact::spatial::Position3DList current_points3D;
+    traact::vision::Position3DList current_points3D;
     // [3d point idx][camera idx] = point2d idx
     std::vector<std::map<size_t, size_t> > current_points2D;
  protected:

@@ -8,27 +8,34 @@ template<class T>
 class SubPixelEdgeDectection {
  public:
     virtual ~SubPixelEdgeDectection() {};
-    virtual traact::Scalar findEdge(T *startInImage, const int positionIncrement, T threshold, const int maxDistance) = 0;
+    virtual traact::Scalar findEdge(T *startInImage,
+                                    size_t image_size,
+                                    T *image_end,
+                                    const int positionIncrement,
+                                    T threshold,
+                                    const int maxDistance) = 0;
 };
 
 template<class T>
 class ThresholdSubPixelEdgeDectection {
  public:
     ~ThresholdSubPixelEdgeDectection() {};
-    traact::Scalar findEdge(T *startInImage, const int positionIncrement, T threshold, const int maxDistance) {
+    traact::Scalar findEdge(T *startInImage, size_t image_size,const int positionIncrement, T threshold, const int maxDistance) {
 
         for (int i = 0; i < maxDistance; ++i) {
             int imageIndex = i * positionIncrement;
+            if(imageIndex < 0 || imageIndex > image_size){
+                return 0;
+            }
 
             if (startInImage[imageIndex] < threshold) {
-                if (i == 0) return 0;
+                int prev_index = imageIndex - positionIncrement;
 
-                int prevIndex = imageIndex - positionIncrement;
-
-                T prevvalue = startInImage[prevIndex];
+                T prev_value = startInImage[prev_index];
                 T value = startInImage[imageIndex];
 
-                traact::Scalar delta = static_cast<traact::Scalar>(prevvalue - threshold) / static_cast<traact::Scalar>(prevvalue - value);
+                traact::Scalar delta =
+                    static_cast<traact::Scalar>(prev_value - threshold) / static_cast<traact::Scalar>(prev_value - value);
 
                 return static_cast<traact::Scalar>(i) + delta;
             }

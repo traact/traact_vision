@@ -32,25 +32,25 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
     int width = 640;
     int height = 480;
 
-    spatial::Position3DList model_points;
-    model_points.push_back(spatial::Position3D(0, 0, 0));
-//    model_points.push_back(spatial::Position3D(0.13252583341776236,0,0));
-//    model_points.push_back(spatial::Position3D(0.34277024217893495, 0.12163979580583522,0));
-//    model_points.push_back(spatial::Position3D(0.22012879651446983, 0.35336019453355811, 0.29034381052086565));
-//    model_points.push_back(spatial::Position3D(-0.1359610986437321, 0.19759050230334861, 0.3067203013358311));
-//    model_points.push_back(spatial::Position3D(0.029846395511918637,0.32073087182657503,0.29426261232679553));
-    model_points.push_back(spatial::Position3D(0.2, 0, 0));
-    model_points.push_back(spatial::Position3D(0.4, -0.05, 0));
-    model_points.push_back(spatial::Position3D(0, 0, 0.3));
-    model_points.push_back(spatial::Position3D(0.15, 0.1, 0.3));
-    model_points.push_back(spatial::Position3D(0.5, 0, 0.5));
+    vision::Position3DList model_points;
+    model_points.push_back(vision::Position3D(0, 0, 0));
+//    model_points.push_back(vision::Position3D(0.13252583341776236,0,0));
+//    model_points.push_back(vision::Position3D(0.34277024217893495, 0.12163979580583522,0));
+//    model_points.push_back(vision::Position3D(0.22012879651446983, 0.35336019453355811, 0.29034381052086565));
+//    model_points.push_back(vision::Position3D(-0.1359610986437321, 0.19759050230334861, 0.3067203013358311));
+//    model_points.push_back(vision::Position3D(0.029846395511918637,0.32073087182657503,0.29426261232679553));
+    model_points.push_back(vision::Position3D(0.2, 0, 0));
+    model_points.push_back(vision::Position3D(0.4, -0.05, 0));
+    model_points.push_back(vision::Position3D(0, 0, 0.3));
+    model_points.push_back(vision::Position3D(0.15, 0.1, 0.3));
+    model_points.push_back(vision::Position3D(0.5, 0, 0.5));
 
     FLOutsideInTracking tracking;
     tracking.SetCountCameras(camera_count);
     util::GenerateMultiCameraBATestData test_data;
     test_data.Init(mea_count, camera_count, width, height, model_points, 0, 0, 0, 0);
 
-    std::vector<spatial::Position2DList> output_points(camera_count);
+    std::vector<vision::Position2DList> output_points(camera_count);
 
 #ifdef DEBUG_RENDER
     std::vector<cv::Scalar> camera_colors;
@@ -111,26 +111,26 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_PerfectData) {
             debug_images[i].setTo(0);
             auto points2d = test_data.GetPointsForCamera(i);
 
-            for (int j = 0; j < points2d.size(); ++j) {
-                cv::circle(debug_images[i], eigen2cv(points2d[j]), 7, cv::Scalar(255, 0, 0));
-            }
+//            for (int j = 0; j < points2d.size(); ++j) {
+//                cv::circle(debug_images[i], eigen2cv(points2d[j]), 7, cv::Scalar(255, 0, 0));
+//            }
 
 //            for (int j = 0; j < camera_count; ++j) {
 //                if(j == i)
 //                    continue;
 //                for(auto& ray : tracking.cameras_[j].rays_) {
-//                    spatial::Position3D p1 = ray.pointAt(4);
-//                    spatial::Position3D p2 = ray.pointAt(6);
-//                    spatial::Position2D p2d1 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p1);
-//                    spatial::Position2D p2d2 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p2);
+//                    vision::Position3D p1 = ray.pointAt(4);
+//                    vision::Position3D p2 = ray.pointAt(6);
+//                    vision::Position2D p2d1 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p1);
+//                    vision::Position2D p2d2 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p2);
 //                    cv::line(debug_images[i], eigen2cv(p2d1),eigen2cv(p2d2),camera_colors[j]);
 //                }
 //            }
 
             for (int j = 0; j < point3d_result.size(); ++j) {
-                spatial::Position2D
+                vision::Position2D
                     p = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, point3d_result[j]);
-                cv::circle(debug_images[i], eigen2cv(p), 5, cv::Scalar(0, 255, 0));
+                cv::circle(debug_images[i], p, 5, cv::Scalar(0, 255, 0));
             }
 
             if (result_valid) {
@@ -166,25 +166,25 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
     int width = 640;
     int height = 480;
 
-    spatial::Position3DList model_points;
-    model_points.push_back(spatial::Position3D(0, 0, 0));
-//    model_points.push_back(spatial::Position3D(0.13252583341776236,0,0));
-//    model_points.push_back(spatial::Position3D(0.34277024217893495, 0.12163979580583522,0));
-//    model_points.push_back(spatial::Position3D(0.22012879651446983, 0.35336019453355811, 0.29034381052086565));
-//    model_points.push_back(spatial::Position3D(-0.1359610986437321, 0.19759050230334861, 0.3067203013358311));
-//    model_points.push_back(spatial::Position3D(0.029846395511918637,0.32073087182657503,0.29426261232679553));
-    model_points.push_back(spatial::Position3D(0.2, 0, 0));
-    model_points.push_back(spatial::Position3D(0.4, -0.05, 0));
-    model_points.push_back(spatial::Position3D(0, 0, 0.3));
-    model_points.push_back(spatial::Position3D(0.15, 0.1, 0.3));
-    model_points.push_back(spatial::Position3D(0.5, 0, 0.5));
+    vision::Position3DList model_points;
+    model_points.push_back(vision::Position3D(0, 0, 0));
+//    model_points.push_back(vision::Position3D(0.13252583341776236,0,0));
+//    model_points.push_back(vision::Position3D(0.34277024217893495, 0.12163979580583522,0));
+//    model_points.push_back(vision::Position3D(0.22012879651446983, 0.35336019453355811, 0.29034381052086565));
+//    model_points.push_back(vision::Position3D(-0.1359610986437321, 0.19759050230334861, 0.3067203013358311));
+//    model_points.push_back(vision::Position3D(0.029846395511918637,0.32073087182657503,0.29426261232679553));
+    model_points.push_back(vision::Position3D(0.2, 0, 0));
+    model_points.push_back(vision::Position3D(0.4, -0.05, 0));
+    model_points.push_back(vision::Position3D(0, 0, 0.3));
+    model_points.push_back(vision::Position3D(0.15, 0.1, 0.3));
+    model_points.push_back(vision::Position3D(0.5, 0, 0.5));
 
     FLOutsideInTracking tracking;
     tracking.SetCountCameras(camera_count);
     util::GenerateMultiCameraBATestData test_data;
     test_data.Init(mea_count, camera_count, width, height, model_points, 0.20, 0, 0, 10);
 
-    std::vector<spatial::Position2DList> output_points(camera_count);
+    std::vector<vision::Position2DList> output_points(camera_count);
 
 #ifdef DEBUG_RENDER
     std::vector<cv::Scalar> camera_colors;
@@ -227,11 +227,11 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 
     for (int mea_idx = 0; mea_idx < mea_count; ++mea_idx) {
 
-        std::vector<spatial::Position2DList *> output_points;
+        std::vector<vision::Position2DList *> output_points;
         for (int i = 0; i < camera_count; ++i) {
             auto points2d = test_data.GetPointsForCameraNoise(mea_idx, i);
             tracking.SetData(i, &cam_data[i].camera2world, &cam_data[i].calibration, &points2d);
-            output_points.push_back(new spatial::Position2DList);
+            output_points.push_back(new vision::Position2DList);
         }
         tracking.Compute();
         auto reconstructed_points = tracking.Get3DPoints();
@@ -239,13 +239,13 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
         for (int model_idx = 0; model_idx < model_points.size(); ++model_idx) {
             int found_count = 0;
             traact::Scalar distance = 0;
-            Eigen::Vector3<traact::Scalar> model_world2point = test_data.GetTargetPose(mea_idx) * model_points[model_idx];
+            traact::vision::Position3D model_world2point = test_data.GetTargetPose(mea_idx) * model_points[model_idx];
             for (int point_idx = 0; point_idx < reconstructed_points.size(); ++point_idx) {
 
-                Eigen::Vector3<traact::Scalar> diff = model_world2point - reconstructed_points[point_idx];
-                if (diff.norm() < 0.01) {
+                auto diff = model_world2point - reconstructed_points[point_idx];
+                if (cv::norm(diff) < 0.01) {
                     ++found_count;
-                    distance = diff.norm();
+                    distance = cv::norm(diff);
                 }
 
             }
@@ -302,26 +302,26 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
 //                if(j < model_points.size()){
 //                    pointColor = cv::Scalar(0,255,0);
 //                }
-                cv::circle(debug_images[i], eigen2cv(points2d[j]), 7, pointColor);
+                cv::circle(debug_images[i], points2d[j], 7, pointColor);
             }
 
 //            for (int j = 0; j < camera_count; ++j) {
 //                if(j == i)
 //                    continue;
 //                for(auto& ray : tracking.cameras_[j].rays_) {
-//                    spatial::Position3D p1 = ray.pointAt(4);
-//                    spatial::Position3D p2 = ray.pointAt(6);
-//                    spatial::Position2D p2d1 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p1);
-//                    spatial::Position2D p2d2 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p2);
+//                    vision::Position3D p1 = ray.pointAt(4);
+//                    vision::Position3D p2 = ray.pointAt(6);
+//                    vision::Position2D p2d1 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p1);
+//                    vision::Position2D p2d2 = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, p2);
 //                    cv::line(debug_images[i], eigen2cv(p2d1),eigen2cv(p2d2),camera_colors[j]);
 //                }
 //            }
 
             for (int j = 0; j < point3d_result.size(); ++j) {
                 traact::Scalar color_factor = static_cast<traact::Scalar>(255) / point3d_result.size();
-                spatial::Position2D
+                vision::Position2D
                     p = math::reproject_point(cam_data[i].camera2world, cam_data[i].calibration, point3d_result[j]);
-                cv::circle(debug_images[i], eigen2cv(p), 5, distinct_colors[j], 1);
+                cv::circle(debug_images[i], p, 5, distinct_colors[j], 1);
             }
 
             if (result_valid) {
@@ -333,7 +333,7 @@ TEST(TraactVisionTestSuite, FL_OutsideInTracking_6Cameras_Noise1Pixel) {
                 cv::drawFrameAxes(debug_images[i], camera_matrix, distortion, rvec, tvec, 1);
 
                 for (int j = 0; j < output_points[i]->size(); ++j) {
-                    cv::Point2d p = eigen2cv(output_points[i]->at(j));
+                    cv::Point2d p = output_points[i]->at(j);
                     cv::Point2d p_text(j * width / model_points.size(), 30);
                     cv::circle(debug_images[i], p, 3, cv::Scalar(0, 0, 255));
                     //cv::line(debug_images[i], p, p_text, cv::Scalar(0,0,255),1);

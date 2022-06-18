@@ -24,18 +24,18 @@ Eigen::Vector3<traact::Scalar> test_point(const std::vector<traact::spatial::Pos
 
     std::vector<Vector2<traact::Scalar>> image_points;
     for (int i = 0; i < cam_2_world.size(); ++i) {
-        Vector2<traact::Scalar> point = reproject_point(cam_2_world[i], calibrations[i], test_position);
-        Vector2<traact::Scalar> pixel_noise;
-        pixel_noise.setRandom();
-        pixel_noise *= noise;
-        point += pixel_noise;
-
-        image_points.push_back(point);
+//        Vector2<traact::Scalar> point = reproject_point(cam_2_world[i], calibrations[i], test_position);
+//        Vector2<traact::Scalar> pixel_noise;
+//        pixel_noise.setRandom();
+//        pixel_noise *= noise;
+//        point += pixel_noise;
+//
+//        image_points.push_back(point);
     }
 
     Vector3<traact::Scalar> p3_result;
 
-    estimate_3d_point(p3_result, cam_2_world, calibrations, image_points);
+    //estimate_3d_point(p3_result, cam_2_world, calibrations, image_points);
 
     return p3_result;
 

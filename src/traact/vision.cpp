@@ -23,6 +23,11 @@ int getOpenCvDepth(BaseType type) {
         }
     }
 }
+FeatureID createFeatureId() {
+    static std::atomic<FeatureID> generator{0};
+    return generator++;
+}
+
 
 int getOpenCvType(const ImageHeader &header) {
     return CV_MAKETYPE(getOpenCvDepth(header.base_type), header.channels);
@@ -80,6 +85,15 @@ CREATE_VISION_COMPONENTS(ApplicationSyncSink)
 BEGIN_TRAACT_PLUGIN_REGISTRATION
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::CameraCalibrationHeader)
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::ImageHeader)
+
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position2DHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position3DHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position2DListHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position3DListHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::FeatureHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::FeatureListHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::KeyPointListHeader)
+
     REGISTER_VISION_COMPONENTS(traact::component::facade::ApplicationAsyncSource)
     REGISTER_VISION_COMPONENTS(traact::component::facade::ApplicationSyncSink)
 END_TRAACT_PLUGIN_REGISTRATION

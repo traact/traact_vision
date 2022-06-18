@@ -8,7 +8,7 @@
 void
 traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t camera_count, size_t width,
                                                   size_t height,
-                                                  spatial::Position3DList model_points, traact::Scalar point2d_noise,
+                                                  vision::Position3DList model_points, traact::Scalar point2d_noise,
                                                   traact::Scalar camera_pos_noise, traact::Scalar camera_rot_noise,
                                                   size_t noise_point_count) {
     max_count_ = data_count;
@@ -76,10 +76,10 @@ traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t came
         traact::Scalar py = std::cos(r * M_PI * 2);
         traact::Scalar pz = std::sin(-r * M_PI * 2);
 
-        spatial::Position3D pos(px, py, pz);
+        vision::Position3D pos(px, py, pz);
         traact::spatial::Rotation3D rot(1.0 - r, r, 0, 0);
         rot.normalize();
-        current_pose.translate(pos);
+        current_pose.translate(Eigen::Vector3<Scalar>(pos.x,pos.y,pos.z));
         current_pose.rotate(rot);
 
         expected_pose_[i] = current_pose;
@@ -87,22 +87,22 @@ traact::util::GenerateMultiCameraBATestData::Init(size_t data_count, size_t came
         reference_point2d_[i].resize(camera_count);
         reference_point2d_noise_[i].resize(camera_count);
         for (int camera_idx = 0; camera_idx < camera_count; ++camera_idx) {
-            traact::spatial::Position2DList result(model_points_.size());
-            traact::spatial::Position2DList result_noise(model_points_.size() + noise_point_count);
+            traact::vision::Position2DList result(model_points_.size());
+            traact::vision::Position2DList result_noise(model_points_.size() + noise_point_count);
             auto &cam_data = camera_data_[camera_idx];
             for (int model_idx = 0; model_idx < model_points_.size(); ++model_idx) {
                 spatial::Pose6D camera2target = cam_data.camera2world * expected_pose_[i];
                 result[model_idx] =
                     traact::math::reproject_point(camera2target, cam_data.calibration, model_points_[model_idx]);
                 result_noise[model_idx] =
-                    result[model_idx] + spatial::Position2D(point2d_noise_ * n_dist(gen), point2d_noise_ * n_dist(gen));
+                    result[model_idx] + vision::Position2D(point2d_noise_ * n_dist(gen), point2d_noise_ * n_dist(gen));
             }
             reference_point2d_[i][camera_idx] = result;
 
             if (noise_point_count > 0) {
                 for (int noise_point_idx = 0; noise_point_idx < noise_point_count; ++noise_point_idx) {
                     result_noise[model_points_.size() + noise_point_idx] =
-                        spatial::Position2D(width * u_dist(gen), height * u_dist(gen));
+                        vision::Position2D(width * u_dist(gen), height * u_dist(gen));
                 }
             }
             std::mt19937 gen{0};
@@ -121,7 +121,7 @@ traact::spatial::Pose6D traact::util::GenerateMultiCameraBATestData::GetTargetPo
     return expected_pose_[current_count_];
 }
 
-traact::spatial::Position2DList traact::util::GenerateMultiCameraBATestData::GetPointsForCamera(size_t idx) {
+traact::vision::Position2DList traact::util::GenerateMultiCameraBATestData::GetPointsForCamera(size_t idx) {
 
     return reference_point2d_[current_count_][idx];
 }
@@ -134,12 +134,12 @@ bool traact::util::GenerateMultiCameraBATestData::Next() {
     return true;
 }
 
-traact::spatial::Position2DList
+traact::vision::Position2DList
 traact::util::GenerateMultiCameraBATestData::GetPointsForCamera(size_t data_idx, size_t camera_idx) {
     return reference_point2d_[data_idx][camera_idx];
 }
 
-traact::spatial::Position2DList
+traact::vision::Position2DList
 traact::util::GenerateMultiCameraBATestData::GetPointsForCameraNoise(size_t data_idx, size_t camera_idx) {
     return reference_point2d_noise_[data_idx][camera_idx];
 }

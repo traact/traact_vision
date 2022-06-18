@@ -33,7 +33,7 @@ static inline void traact2cv(const spatial::Pose6D &pose, cv::Mat &rvec, cv::Mat
         rvec = cv::Mat(1, 3, CV_64F);
         tvec = cv::Mat(1, 3, CV_64F);
     }
-    spatial::Position3D trans = pose.translation();
+    Eigen::Vector3<Scalar> trans = pose.translation();
 
     memcpy(tvec.data, trans.data(), sizeof(Scalar) * 3);
     Eigen::Matrix3<traact::Scalar> rot_mat = pose.rotation();
@@ -139,28 +139,35 @@ static inline void cv2traact(vision::CameraCalibration &calibration,
 
 }
 
-static inline void cv2traact(const cv::Point2f &cv_point, spatial::Position2D& traact_point){
+static inline void cv2traact(const cv::Point2f &cv_point, Eigen::Vector2<Scalar>& traact_point){
     traact_point.x() = static_cast<traact::Scalar>(cv_point.x);
     traact_point.y() = static_cast<traact::Scalar>(cv_point.y);
 }
 
-static inline void cv2traact(const cv::Point3f &cv_point, spatial::Position3D& traact_point){
+static inline void cv2traact(const cv::Point3f &cv_point, Eigen::Vector3<Scalar>& traact_point){
     traact_point.x() = static_cast<traact::Scalar>(cv_point.x);
     traact_point.y() = static_cast<traact::Scalar>(cv_point.y);
     traact_point.z() = static_cast<traact::Scalar>(cv_point.z);
 }
 
-static inline void cv2traact(const std::vector<cv::Point2f>& cv_points, spatial::Position2DList traact_points) {
+static inline void cv2traact(const std::vector<cv::Point2f>& cv_points, std::vector<Eigen::Vector2<Scalar>> traact_points) {
     traact_points.resize(cv_points.size());
     for (size_t i=0;i<cv_points.size();++i) {
         cv2traact(cv_points[i], traact_points[i]);
     }
 }
-static inline void cv2traact(const std::vector<cv::Point3f>& cv_points, spatial::Position3DList traact_points) {
+static inline void cv2traact(const std::vector<cv::Point3f>& cv_points, std::vector<Eigen::Vector3<Scalar>> traact_points) {
     traact_points.resize(cv_points.size());
     for (size_t i=0;i<cv_points.size();++i) {
         cv2traact(cv_points[i], traact_points[i]);
     }
+}
+
+static inline Scalar normL2Sqr(const vision::Position2D& point){
+    return point.x*point.x + point.y*point.y;
+}
+static inline Scalar normL2Sqr(const vision::Position3D& point){
+    return point.x*point.x + point.y*point.y+ point.z*point.z;
 }
 }
 

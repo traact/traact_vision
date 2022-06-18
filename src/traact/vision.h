@@ -6,9 +6,13 @@
 #include "vision_datatypes.h"
 #include "traact/traact.h"
 #include "traact/vision/Image.h"
-
+#include <traact/spatial.h>
 
 namespace traact::vision {
+
+using FeatureID = uint64_t;
+
+TRAACT_VISION_EXPORT FeatureID createFeatureId();
 
 using Position2D = cv::Point_<traact::Scalar>;
 using Position3D = cv::Point3_<traact::Scalar>;
@@ -16,10 +20,49 @@ using Position2DList = std::vector<Position2D>;
 using Position3DList = std::vector<Position3D>;
 using KeyPointList = std::vector<cv::KeyPoint>;
 
+struct TRAACT_VISION_EXPORT Feature {
+    cv::Mat descriptor;
+    FeatureID feature_id;
+    std::vector<FeatureID> constructed_from;
+
+    void createIds(){
+        feature_id = createFeatureId();
+    }
+};
+
+struct TRAACT_VISION_EXPORT FeatureList {
+    cv::Mat descriptor;
+    std::vector<FeatureID> feature_id;
+    std::vector<std::vector<FeatureID>> constructed_from;
+
+    void createIds(size_t count){
+        feature_id.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            feature_id.template emplace_back(createFeatureId());
+        }
+    }
+    void createIds(size_t count, FeatureID created_from){
+        clear();
+        createIds(count);
+        constructed_from.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            constructed_from.template emplace_back(std::vector<FeatureID>{created_from});
+        }
+    }
+    void clear() {
+        feature_id.clear();
+        constructed_from.clear();
+        descriptor = cv::Mat();
+    }
+};
+
 CREATE_TRAACT_HEADER_TYPE(Position2DHeader, traact::vision::Position2D, "vision:Position2D", TRAACT_VISION_EXPORT)
 CREATE_TRAACT_HEADER_TYPE(Position3DHeader, traact::vision::Position3D, "vision:Position3D", TRAACT_VISION_EXPORT)
 CREATE_TRAACT_HEADER_TYPE(Position2DListHeader, traact::vision::Position2DList, "vision:Position2DList", TRAACT_VISION_EXPORT)
 CREATE_TRAACT_HEADER_TYPE(Position3DListHeader, traact::vision::Position3DList, "vision:Position3DList", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(KeyPointListHeader, traact::vision::KeyPointList, "vision:KeyPointList", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(FeatureHeader, traact::vision::Feature, "vision:Feature", TRAACT_VISION_EXPORT)
+CREATE_TRAACT_HEADER_TYPE(FeatureListHeader, traact::vision::FeatureList, "vision:FeatureList", TRAACT_VISION_EXPORT)
 
 CREATE_TRAACT_HEADER_TYPE(CameraCalibrationHeader,
                           traact::vision::CameraCalibration,
@@ -48,7 +91,7 @@ class TRAACT_VISION_EXPORT ImageHeaderFactory : public traact::buffer::Templated
 };
 
 
-int getOpenCvDepth(BaseType type);
+int TRAACT_VISION_EXPORT getOpenCvDepth(BaseType type);
 
 }
 

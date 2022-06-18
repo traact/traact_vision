@@ -3,13 +3,14 @@
 #include "FLOutsideInTracking.h"
 #include <spdlog/spdlog.h>
 #include "traact/math/perspective.h"
+#include "traact/opencv/OpenCVUtils.h"
 void traact::vision::FLOutsideInTracking::SetCountCameras(size_t count) {
     cameras_.resize(count);
 }
 
 void traact::vision::FLOutsideInTracking::SetData(size_t idx, const spatial::Pose6D *camera2world,
                                                   const traact::vision::CameraCalibration *calibration,
-                                                  const spatial::Position2DList *input) {
+                                                  const vision::Position2DList *input) {
     cameras_[idx].SetData(camera2world, calibration, input);
 }
 
@@ -71,9 +72,9 @@ void traact::vision::FLOutsideInTracking::Compute() {
 
         std::vector<vision::CameraCalibration> calibrations(candidate_size);
         std::vector<spatial::Pose6D> cam2world_poses(candidate_size);
-        //spatial::Position2DList image_points(candidate_size);
-        std::vector<Eigen::Vector2<traact::Scalar>> image_points(candidate_size);
-        spatial::Position3D result;
+        //vision::Position2DList image_points(candidate_size);
+        vision::Position2DList image_points(candidate_size);
+        vision::Position3D result;
         int idx = 0;
         for (auto &tmp : good_candidates) {
             auto camera_idx = tmp.first;
@@ -89,7 +90,7 @@ void traact::vision::FLOutsideInTracking::Compute() {
             continue;
 
         for (int i = 0; i < cam2world_poses.size(); ++i) {
-            traact::Scalar error = math::reprojection_error(cam2world_poses[i], image_points[i], calibrations[i], result);
+            traact::Scalar error = 10;//math::reprojectionError(cam2world_poses[i], image_points[i], calibrations[i], result);
             if (error > 5)
                 result_valid = false;
         }
@@ -117,18 +118,18 @@ void traact::vision::FLOutsideInTracking::Compute() {
 
 }
 
-traact::spatial::Position3DList traact::vision::FLOutsideInTracking::Get3DPoints() {
+traact::vision::Position3DList traact::vision::FLOutsideInTracking::Get3DPoints() {
     return current_points3D;
 }
 
-std::vector<std::vector<traact::spatial::Position2D>> traact::vision::FLOutsideInTracking::Get3DPoints2DCorrespondence() {
-    return std::vector<std::vector<spatial::Position2D>>();
+std::vector<std::vector<traact::vision::Position2D>> traact::vision::FLOutsideInTracking::Get3DPoints2DCorrespondence() {
+    return std::vector<std::vector<vision::Position2D>>();
 }
 
 bool
-traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &model_points, spatial::Pose6D &output,
-                                                std::vector<spatial::Position2DList *> *output_points,
-                                                spatial::Position3DList *output_target_points) {
+traact::vision::FLOutsideInTracking::FindTarget(const vision::Position3DList &model_points, spatial::Pose6D &output,
+                                                std::vector<vision::Position2DList *> *output_points,
+                                                vision::Position3DList *output_target_points) {
 
     auto model_count = model_points.size();
     auto all_count = current_points3D.size();
@@ -141,7 +142,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
     for (int i = 0; i < model_count; ++i) {
         distances_model_[i].resize(model_count);
         for (int j = 0; j < model_count; ++j) {
-            distances_model_[i][j] = (model_points[i] - model_points[j]).squaredNorm();
+            distances_model_[i][j] = normL2Sqr(model_points[i] - model_points[j]);
         }
 
     }
@@ -152,7 +153,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
             //if(i == j)
             //    continue;
             //distances_all[i].push_back(std::make_pair(j, (current_points3D[i] - current_points3D[j]).squaredNorm()));
-            distances_all_[i][j] = std::make_pair(j, (current_points3D[i] - current_points3D[j]).squaredNorm());
+            distances_all_[i][j] = std::make_pair(j, normL2Sqr(current_points3D[i] - current_points3D[j]));
         }
     }
     std::map<size_t, size_t> found_correspondences;
@@ -171,7 +172,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
 
         std::vector<traact::spatial::Pose6D> cam2world;
         std::vector<vision::CameraCalibration> intrinsics;
-        std::vector<spatial::Position2DList> image_point;
+        std::vector<vision::Position2DList> image_point;
         size_t local_camera_idx = 0;
 
         for (int camera_idx = 0; camera_idx < cameras_.size(); ++camera_idx) {
@@ -200,7 +201,7 @@ traact::vision::FLOutsideInTracking::FindTarget(const spatial::Position3DList &m
             if (use_camera) {
                 cam2world.push_back(cameras_[camera_idx].camera2world_);
                 intrinsics.push_back(cameras_[camera_idx].calibration_);
-                spatial::Position2DList local_image_points(model_count);
+                vision::Position2DList local_image_points(model_count);
 
                 for (int point3d_idx = 0; point3d_idx < model_count; ++point3d_idx) {
                     auto local_point_idx = final_points[point3d_idx][camera_idx];
@@ -250,10 +251,10 @@ bool traact::vision::FLOutsideInTracking::TestPointAsOrigin(size_t origin_idx,
 
     SPDLOG_INFO("model idx: {0} p {1} {2} {3} {4}",
                  0,
-                 current_points3D[origin_idx].x(),
-                 current_points3D[origin_idx].y(),
-                 current_points3D[origin_idx].z(),
-                 current_points3D[origin_idx].norm());
+                 current_points3D[origin_idx].x,
+                 current_points3D[origin_idx].y,
+                 current_points3D[origin_idx].z,
+                 cv::norm(current_points3D[origin_idx]));
 
     correspondences[0] = origin_idx;
 
@@ -311,7 +312,7 @@ traact::vision::FLOutsideInTracking::RecursiveFindModel(size_t cur_model_idx, si
 
 void traact::vision::TrackingCamera::SetData(const traact::spatial::Pose6D *camera2world,
                                              const traact::vision::CameraCalibration *calibration,
-                                             const traact::spatial::Position2DList *input) {
+                                             const traact::vision::Position2DList *input) {
 
     camera2world_ = *camera2world;
     calibration_ = *calibration;
@@ -334,7 +335,7 @@ void traact::vision::TrackingCamera::SetData(const traact::spatial::Pose6D *came
     spatial::Pose6D world2camera = camera2world->inverse();
 
     for (int i = 0; i < input->size(); ++i) {
-        Eigen::Vector3<traact::Scalar> p(input->at(i).x(), input->at(i).y(), 1);
+        Eigen::Vector3<traact::Scalar> p(input->at(i).x, input->at(i).y, 1);
         Eigen::Vector3<traact::Scalar> direction = intrinsics_inv * p;
         direction.normalize();
         direction = world2camera * direction;
@@ -347,15 +348,15 @@ void traact::vision::TrackingCamera::SetData(const traact::spatial::Pose6D *came
 }
 
 std::vector<size_t>
-traact::vision::TrackingCamera::FindPoints(const traact::spatial::Position3D world2point, traact::Scalar max_distance) {
+traact::vision::TrackingCamera::FindPoints(const traact::vision::Position3D world2point, traact::Scalar max_distance) {
     std::vector<size_t> result;
-    spatial::Position2D image_point = math::reproject_point(camera2world_, calibration_, world2point);
-    traact::Scalar max_distance_squared = max_distance * max_distance;
-    for (int i = 0; i < input_.size(); ++i) {
-        traact::Scalar distance = (input_[i] - image_point).squaredNorm();
-        if (distance < max_distance_squared)
-            result.push_back(i);
-    }
+    //vision::Position2D image_point = math::reproject_point(camera2world_, calibration_, world2point);
+//    traact::Scalar max_distance_squared = max_distance * max_distance;
+//    for (int i = 0; i < input_.size(); ++i) {
+//        traact::Scalar distance = traact::normL2Sqr(input_[i] - image_point);
+//        if (distance < max_distance_squared)
+//            result.push_back(i);
+//    }
     return result;
 }
 
@@ -388,3 +389,4 @@ bool traact::vision::Point3DCandidate::UsesPoint(size_t camera_idx, size_t point
     }
     return false;
 }
+

@@ -14,7 +14,7 @@ template<uint16_t N>
 struct DistanceError3D3D {
     // (u, v): the position of the observation with respect to the image
     // center point.
-    DistanceError3D3D(spatial::Position3DList src_points, spatial::Position3DList dst_points)
+    DistanceError3D3D(vision::Position3DList src_points, vision::Position3DList dst_points)
         : src_points_(src_points), dst_points_(dst_points) {
     }
 
@@ -33,14 +33,14 @@ struct DistanceError3D3D {
 
         for (int i = 0; i < N; ++i) {
             T point_src[3];
-            point_src[0] = T(src_points_[i].x());
-            point_src[1] = T(src_points_[i].y());
-            point_src[2] = T(src_points_[i].z());
+            point_src[0] = T(src_points_[i].x);
+            point_src[1] = T(src_points_[i].y);
+            point_src[2] = T(src_points_[i].z);
 
             T point_dst[3];
-            point_dst[0] = T(dst_points_[i].x());
-            point_dst[1] = T(dst_points_[i].y());
-            point_dst[2] = T(dst_points_[i].z());
+            point_dst[0] = T(dst_points_[i].x);
+            point_dst[1] = T(dst_points_[i].y);
+            point_dst[2] = T(dst_points_[i].z);
 
             T point_predicted[3];
             ceres::QuaternionRotatePoint(world2target_rot, point_src, point_predicted);
@@ -61,20 +61,20 @@ struct DistanceError3D3D {
 
     // Factory to hide the construction of the CostFunction object from
     // the client code.
-    static ceres::CostFunction *Create(spatial::Position3DList src_points, spatial::Position3DList dst_points) {
+    static ceres::CostFunction *Create(vision::Position3DList src_points, vision::Position3DList dst_points) {
         return (new ceres::AutoDiffCostFunction<
             DistanceError3D3D, N, 7>(
             new DistanceError3D3D(src_points, dst_points)));
     }
 
-    const spatial::Position3DList src_points_;
-    const spatial::Position3DList dst_points_;
+    const vision::Position3DList src_points_;
+    const vision::Position3DList dst_points_;
 
 };
 
 class DistanceError3D3DFactory {
  public:
-    static ceres::CostFunction *Create(spatial::Position3DList src_points, spatial::Position3DList dst_points) {
+    static ceres::CostFunction *Create(vision::Position3DList src_points, vision::Position3DList dst_points) {
 
         size_t point_count = src_points.size();
         switch (point_count) {

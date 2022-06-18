@@ -14,10 +14,10 @@ template<uint16_t N>
 struct TargetReprojectionError {
     // (u, v): the position of the observation with respect to the image
     // center point.
-    TargetReprojectionError(spatial::Position2DList observed,
+    TargetReprojectionError(vision::Position2DList observed,
                             traact::spatial::Pose6D cam2world,
                             vision::CameraCalibration calibration,
-                            spatial::Position3DList model)
+                            vision::Position3DList model)
         : observed_(observed), calibration_(calibration), camera2world_(cam2world), model_(model) {
         traact::spatial::Rotation3D rot(cam2world.rotation());
         rot = rot;
@@ -78,9 +78,9 @@ struct TargetReprojectionError {
 
         for (int i = 0; i < N; ++i) {
             T point[3];
-            point[0] = T(model_[i].x());
-            point[1] = T(model_[i].y());
-            point[2] = T(model_[i].z());
+            point[0] = T(model_[i].x);
+            point[1] = T(model_[i].y);
+            point[2] = T(model_[i].z);
 
             ceres::QuaternionRotatePoint(cam2target_rot, point, cam2point);
             cam2point[0] += cam2target_pos[0];
@@ -100,8 +100,8 @@ struct TargetReprojectionError {
 
 
             // The error is the difference between the predicted and observed position.
-            residuals[i * 2 + 0] = predicted_x - T(observed_[i].x());
-            residuals[i * 2 + 1] = predicted_y - T(observed_[i].y());
+            residuals[i * 2 + 0] = predicted_x - T(observed_[i].x);
+            residuals[i * 2 + 1] = predicted_y - T(observed_[i].y);
         }
 
         return true;
@@ -109,30 +109,30 @@ struct TargetReprojectionError {
 
     // Factory to hide the construction of the CostFunction object from
     // the client code.
-    static ceres::CostFunction *Create(spatial::Position2DList observed,
+    static ceres::CostFunction *Create(vision::Position2DList observed,
                                        traact::spatial::Pose6D cam2world,
                                        vision::CameraCalibration calibration,
-                                       spatial::Position3DList model) {
+                                       vision::Position3DList model) {
         return (new ceres::AutoDiffCostFunction<
             TargetReprojectionError, N * 2, 7>(
             new TargetReprojectionError(observed, cam2world,
                                         calibration, model)));
     }
 
-    const spatial::Position2DList observed_;
+    const vision::Position2DList observed_;
     const spatial::Pose6D camera2world_;
     traact::Scalar camera[7];
     const vision::CameraCalibration calibration_;
-    const spatial::Position3DList model_;
+    const vision::Position3DList model_;
 
 };
 
 class TargetReprojectionErrorFactory {
  public:
-    static ceres::CostFunction *Create(spatial::Position2DList observed,
+    static ceres::CostFunction *Create(vision::Position2DList observed,
                                        traact::spatial::Pose6D cam2world,
                                        vision::CameraCalibration calibration,
-                                       spatial::Position3DList model) {
+                                       vision::Position3DList model) {
 
         size_t point_count = observed.size();
         switch (point_count) {
