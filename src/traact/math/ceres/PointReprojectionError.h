@@ -1,22 +1,23 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#ifndef TRAACTMULTI_POINTREPROJECTIONERROR_H
-#define TRAACTMULTI_POINTREPROJECTIONERROR_H
+#ifndef TRAACT_VISION_SRC_TRAACT_MATH_CERES_POINTREPROJECTIONERROR_H_
+#define TRAACT_VISION_SRC_TRAACT_MATH_CERES_POINTREPROJECTIONERROR_H_
 
 #include <ceres/ceres.h>
 #include <ceres/rotation.h>
 #include "traact/vision_datatypes.h"
+#include "traact/vision.h"
 
 namespace traact::math {
 
 struct PointReprojectionError {
     // (u, v): the position of the observation with respect to the image
     // center point.
-    PointReprojectionError(Eigen::Vector2<traact::Scalar> observed,
+    PointReprojectionError(vision::Position2D observed,
                            traact::spatial::Pose6D cam2world,
                            vision::CameraCalibration calibration,
                            int index)
-        : observed_(observed), calibration_(calibration), observationIndex_(index) {
+        : observed_(observed.x, observed.y), calibration_(calibration), observationIndex_(index) {
         traact::spatial::Rotation3D rot(cam2world.rotation());
         rot = rot;
         auto pos = cam2world.translation();
@@ -88,7 +89,7 @@ struct PointReprojectionError {
 
     // Factory to hide the construction of the CostFunction object from
     // the client code.
-    static ceres::CostFunction *Create(Eigen::Vector2<traact::Scalar> observed,
+    static ceres::CostFunction *Create(vision::Position2D observed,
                                        traact::spatial::Pose6D cam2world,
                                        vision::CameraCalibration calibration,
                                        int index) {
@@ -98,12 +99,12 @@ struct PointReprojectionError {
                                        calibration, index)));
     }
 
-    const Eigen::Vector2<traact::Scalar> observed_;
+    const Eigen::Vector2d observed_;
     const int observationIndex_;
-    traact::Scalar camera[7];
+    double camera[7];
     const vision::CameraCalibration calibration_;
 
 };
 }
 
-#endif //TRAACTMULTI_POINTREPROJECTIONERROR_H
+#endif //TRAACT_VISION_SRC_TRAACT_MATH_CERES_POINTREPROJECTIONERROR_H_

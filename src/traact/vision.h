@@ -25,35 +25,17 @@ struct TRAACT_VISION_EXPORT Feature {
     FeatureID feature_id;
     std::vector<FeatureID> constructed_from;
 
-    void createIds(){
-        feature_id = createFeatureId();
-    }
+    void createIds();
 };
 
 struct TRAACT_VISION_EXPORT FeatureList {
     cv::Mat descriptor;
     std::vector<FeatureID> feature_id;
-    std::vector<std::vector<FeatureID>> constructed_from;
+    std::unordered_map<FeatureID, std::vector<FeatureID>> constructed_from;
 
-    void createIds(size_t count){
-        feature_id.reserve(count);
-        for (size_t i = 0; i < count; ++i) {
-            feature_id.template emplace_back(createFeatureId());
-        }
-    }
-    void createIds(size_t count, FeatureID created_from){
-        clear();
-        createIds(count);
-        constructed_from.reserve(count);
-        for (size_t i = 0; i < count; ++i) {
-            constructed_from.template emplace_back(std::vector<FeatureID>{created_from});
-        }
-    }
-    void clear() {
-        feature_id.clear();
-        constructed_from.clear();
-        descriptor = cv::Mat();
-    }
+    void createIds(size_t count);
+    void createIds(size_t count, FeatureID created_from);
+    void clear();
 };
 
 CREATE_TRAACT_HEADER_TYPE(Position2DHeader, traact::vision::Position2D, "vision:Position2D", TRAACT_VISION_EXPORT)

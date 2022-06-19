@@ -5,31 +5,19 @@
 
 namespace traact::vision::outside_in {
 std::optional<std::vector<int>>
-FindTargetPoints::FindTarget(const vision::Position3DList &model_points,
-                             const vision::Position3DList &current_points) {
+FindTargetPoints::findTarget(const vision::Position3DList &current_points) {
 
-    auto model_count = model_points.size();
+    auto model_count = distances_model_.size();
     auto all_count = current_points.size();
     if (all_count < model_count)
         return {};
 
     std::vector<std::map<size_t, size_t> > final_points(model_count);
 
-    distances_model_.resize(model_count);
-    for (int i = 0; i < model_count; ++i) {
-        distances_model_[i].resize(model_count);
-        for (int j = 0; j < model_count; ++j) {
-            distances_model_[i][j] = normL2Sqr(model_points[i] - model_points[j]);
-        }
-
-    }
     distances_all_.resize(all_count);
     for (int i = 0; i < all_count; ++i) {
         distances_all_[i].resize(all_count);
         for (int j = 0; j < all_count; ++j) {
-            //if(i == j)
-            //    continue;
-            //distances_all[i].push_back(std::make_pair(j, (current_points[i] - current_points[j]).squaredNorm()));
             distances_all_[i][j] = std::make_pair(j, normL2Sqr(current_points[i] - current_points[j]));
         }
     }
@@ -43,13 +31,14 @@ FindTargetPoints::FindTarget(const vision::Position3DList &model_points,
     }
 
     if (result) {
-
-        //SPDLOG_INFO("found model: {0}", found_correspondences.size());
-
-
-
+        std::vector<int> model_to_point(found_correspondences.size());
+        for (const auto [model_index, point_index] : found_correspondences) {
+            model_to_point[model_index] = point_index;
+        }
+        return {model_to_point};
+    } else {
+        return {};
     }
-
 }
 
 bool FindTargetPoints::TestPointAsOrigin(size_t origin_idx,
@@ -59,13 +48,6 @@ bool FindTargetPoints::TestPointAsOrigin(size_t origin_idx,
 
     if (!IsModelPoint(0, origin_idx))
         return false;
-
-    SPDLOG_INFO("model idx: {0} p {1} {2} {3} {4}",
-                0,
-                current_points[origin_idx].x,
-                current_points[origin_idx].y,
-                current_points[origin_idx].z,
-                cv::norm(current_points[origin_idx]));
 
     correspondences[0] = origin_idx;
 
@@ -81,12 +63,13 @@ bool FindTargetPoints::IsModelPoint(size_t model_idx, size_t point_idx) {
     for (int i = 0; i < model_distances.size(); ++i) {
         if (i == model_idx)
             continue;
+
         traact::Scalar model_dist = model_distances[i];
         auto find_result = std::find_if(local_distances.begin(),
                                         local_distances.end(),
-                                        [model_dist](const std::pair<int, traact::Scalar> &value) {
+                                        [model_dist, max_distance = this->max_distance_](const std::pair<int, traact::Scalar> &value) {
                                             traact::Scalar diff = std::abs(value.second - model_dist);
-                                            return diff < 0.01;
+                                            return diff < max_distance;
                                         });
         if (find_result == local_distances.end())
             return false;
@@ -123,7 +106,26 @@ FindTargetPoints::RecursiveFindModel(size_t cur_model_idx,
             return result;
     }
 
-    return std::map<size_t, size_t>();
+    return {};
+}
+void FindTargetPoints::initTarget(const Position3DList &model_points) {
+    auto model_count = model_points.size();
+
+    Scalar min_distance_model{std::numeric_limits<Scalar>::max()};
+
+    distances_model_.resize(model_count);
+    for (int i = 0; i < model_count; ++i) {
+        distances_model_[i].resize(model_count);
+        for (int j = 0; j < model_count; ++j) {
+            distances_model_[i][j] = normL2Sqr(model_points[i] - model_points[j]);
+            if(distances_model_[i][j] > 0.0){
+                min_distance_model = std::min(min_distance_model, distances_model_[i][j]);
+            }
+
+        }
+    }
+    max_distance_ = min_distance_model / 2;
+
 }
 
 }

@@ -29,6 +29,7 @@ traact::vision::Position2D
 traact::math::reproject_point(const traact::spatial::Pose6D &cam2world,
                               const traact::vision::CameraCalibration &intrinsics,
                               const vision::Position3D &point) {
+
     auto p_tmp = cam2world * point;
     return reproject_point(intrinsics, p_tmp);
 }
@@ -113,8 +114,8 @@ bool traact::math::estimate_3d_point(vision::Position3D &result,
         cv::Mat proj1, proj2;
         cv::eigen2cv(create_projection_matrix(cam2world[0], intrinsics[0]), proj1);
         cv::eigen2cv(create_projection_matrix(cam2world[1], intrinsics[1]), proj2);
-        cv::Mat cv_result(4, 1, CV_64F);
-        std::vector<cv::Point2d> p1, p2;
+        cv::Mat cv_result(4, 1, CV_32F);
+        std::vector<cv::Point2f> p1, p2;
         p1.push_back(image_point[0]);
         p2.push_back(image_point[1]);
 
@@ -139,12 +140,12 @@ bool traact::math::estimate_3d_point(vision::Position3D &result,
 
         //traact::Scalar* tmp = 0;//measurement_for_observation(i);
         // all are single 3d points
-//        ceres::CostFunction *cost_function =
-//            PointReprojectionError::Create(image_point[i], cam2world[i], intrinsics[i], i);
-//
-//        problem.AddResidualBlock(cost_function,
-//                                 NULL,//new ceres::HuberLoss(1.0), //NULL /* squared loss */,
-//                                 ceres_result);
+        ceres::CostFunction *cost_function =
+            PointReprojectionError::Create(image_point[i], cam2world[i], intrinsics[i], i);
+
+        problem.AddResidualBlock(cost_function,
+                                 NULL,//new ceres::HuberLoss(1.0), //NULL /* squared loss */,
+                                 ceres_result);
 
     }
 
@@ -218,10 +219,11 @@ void traact::math::undistort_points(const vision::CameraCalibration &dis_calibra
 
 }
 
-bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::vector<traact::spatial::Pose6D> &cam2world,
-                                    const std::vector<vision::CameraCalibration> &intrinsics,
-                                    const std::vector<vision::Position2DList> &image_point,
-                                    const vision::Position3DList &model, double *covariance_output) {
+
+bool traact::math::estimatePose6D(traact::spatial::Pose6D &result, const std::vector<traact::spatial::Pose6D> &cam2world,
+                                  const std::vector<vision::CameraCalibration> &intrinsics,
+                                  const std::vector<vision::Position2DList> &image_point,
+                                  const std::vector<vision::Position3DList> &model, double *covariance_output) {
     if (intrinsics.size() != image_point.size() || cam2world.size() != image_point.size()) {
         SPDLOG_ERROR("size of cam2world or calibration differ from image points");
         return false;
@@ -244,30 +246,37 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
     ceres_result[5] = 0;
     ceres_result[6] = 0;
 
-    spatial::Pose6D init_cam2target;
-    bool init_result = estimate_camera_pose(init_cam2target, image_point[0], intrinsics[0], model);
-    if (init_result) {
-        spatial::Pose6D init_pose = cam2world[0].inverse() * init_cam2target;
-        Eigen::Vector3<traact::Scalar> init_pos = init_pose.translation();
-        traact::spatial::Rotation3D init_rot(init_pose.rotation());
-        ceres_result[0] = init_rot.w();
-        ceres_result[1] = init_rot.x();
-        ceres_result[2] = init_rot.y();
-        ceres_result[3] = init_rot.z();
-        ceres_result[4] = init_pos.x();
-        ceres_result[5] = init_pos.y();
-        ceres_result[6] = init_pos.z();
 
-    } else {
-        SPDLOG_WARN("estimate_3d_pose: unable to estimate init pose");
+    bool init_result{false};
+    // try to estimate initial pose with any camera that has at least 5 points
+    for (int camera_index = 0; camera_index < image_point.size(); ++camera_index) {
+        if(image_point[camera_index].size() > 5){
+            spatial::Pose6D init_cam2target;
+            init_result = estimate_camera_pose(init_cam2target, image_point[camera_index], intrinsics[camera_index], model[camera_index]);
+            if(init_result){
+                spatial::Pose6D init_pose = cam2world[camera_index].inverse() * init_cam2target;
+                Eigen::Vector3<traact::Scalar> init_pos = init_pose.translation();
+                traact::spatial::Rotation3D init_rot(init_pose.rotation());
+                ceres_result[0] = init_rot.w();
+                ceres_result[1] = init_rot.x();
+                ceres_result[2] = init_rot.y();
+                ceres_result[3] = init_rot.z();
+                ceres_result[4] = init_pos.x();
+                ceres_result[5] = init_pos.y();
+                ceres_result[6] = init_pos.z();
+                break;
+            }
+        }
+    }
+    if (!init_result)  {
+        SPDLOG_WARN("estimatePose6D: unable to estimate init pose");
     }
 
-    for (int i = 0; i < image_point.size(); ++i) {
 
-        //traact::Scalar* tmp = 0;//measurement_for_observation(i);
+    for (int i = 0; i < image_point.size(); ++i) {
         // all are single 3d points
         ceres::CostFunction
-            *cost_function = TargetReprojectionErrorFactory::Create(image_point[i], cam2world[i], intrinsics[i], model);
+            *cost_function = TargetReprojectionErrorFactory::Create(image_point[i], cam2world[i], intrinsics[i], model[i]);
 
         problem.AddResidualBlock(cost_function,
                                  NULL,//new ceres::HuberLoss(1.0), //NULL /* squared loss */,
@@ -280,7 +289,6 @@ bool traact::math::estimate_3d_pose(traact::spatial::Pose6D &result, const std::
     //options.linear_solver_type = ceres::LinearSolverType::DENSE_QR;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
-    //std::cout << summary.FullReport() << "\n";
     //SPDLOG_INFO(summary.FullReport());
     traact::spatial::Rotation3D
         result_rot = traact::spatial::Rotation3D(ceres_result[0], ceres_result[1], ceres_result[2], ceres_result[3]);
@@ -356,6 +364,18 @@ traact::Scalar traact::math::reprojectionError(const traact::spatial::Pose6D &ca
                                                const traact::vision::Position3D &world_to_points) {
 
     return reprojectionError(camera_to_world, vision::Position2DList {image_points}, intrinsics, vision::Position3DList {world_to_points});
+}
+traact::Scalar traact::math::reprojectionError(const std::vector<traact::spatial::Pose6D> &camera_to_world,
+                                               const std::vector<vision::Position2DList> &image_point,
+                                               const std::vector<vision::CameraCalibration> &intrinsics,
+                                               const std::vector<vision::Position3DList> &world_to_points) {
+
+    Scalar error{0};
+    for (int i = 0; i < camera_to_world.size(); ++i) {
+        error += reprojectionError(camera_to_world[i], image_point[i], intrinsics[i], world_to_points[i]);
+    }
+    error = error / camera_to_world.size();
+    return error;
 }
 
 

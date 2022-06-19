@@ -1,7 +1,7 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#ifndef TRAACTMULTI_OPENCVUTILS_H
-#define TRAACTMULTI_OPENCVUTILS_H
+#ifndef TRAACT_VISION_SRC_TRAACT_OPENCV_OPENCVUTILS_H_
+#define TRAACT_VISION_SRC_TRAACT_OPENCV_OPENCVUTILS_H_
 
 #include <traact/vision_datatypes.h>
 #include <traact/spatial.h>
@@ -175,4 +175,4 @@ static inline Scalar normL2Sqr(const vision::Position3D& point){
 }
 }
 
-#endif //TRAACTMULTI_OPENCVUTILS_H
+#endif //TRAACT_VISION_SRC_TRAACT_OPENCV_OPENCVUTILS_H_

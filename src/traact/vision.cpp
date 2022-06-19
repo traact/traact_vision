@@ -75,6 +75,29 @@ void ImageHeader::copyFrom(const ImageHeader &header) {
     pixel_format = header.pixel_format;
     base_type = header.base_type;
 }
+void Feature::createIds() {
+    feature_id = createFeatureId();
+    constructed_from.clear();
+    descriptor = cv::Mat();
+}
+void FeatureList::createIds(size_t count) {
+    clear();
+    feature_id.reserve(count);
+    for (size_t i = 0; i < count; ++i) {
+        feature_id.template emplace_back(createFeatureId());
+    }
+}
+void FeatureList::createIds(size_t count, FeatureID created_from) {
+    createIds(count);
+    for (size_t i = 0; i < count; ++i) {
+        constructed_from.template emplace(feature_id[i], std::vector<FeatureID>{created_from});
+    }
+}
+void FeatureList::clear() {
+    feature_id.clear();
+    constructed_from.clear();
+    descriptor = cv::Mat();
+}
 }
 
 namespace traact::component::facade {

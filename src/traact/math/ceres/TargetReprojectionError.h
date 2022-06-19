@@ -18,7 +18,7 @@ struct TargetReprojectionError {
                             traact::spatial::Pose6D cam2world,
                             vision::CameraCalibration calibration,
                             vision::Position3DList model)
-        : observed_(observed), calibration_(calibration), camera2world_(cam2world), model_(model) {
+        : calibration_(calibration) {
         traact::spatial::Rotation3D rot(cam2world.rotation());
         rot = rot;
         auto pos = cam2world.translation();
@@ -30,6 +30,15 @@ struct TargetReprojectionError {
         camera[4] = pos.x();
         camera[5] = pos.y();
         camera[6] = pos.z();
+
+        observed_.reserve(observed.size());
+        for(const auto& point : observed){
+          observed_.template emplace_back(point.x, point.y);
+        }
+        model_.reserve(observed.size());
+        for(const auto& point : model){
+            model_.template emplace_back(point.x, point.y, point.z);
+        }
     }
 
     template<typename T>
@@ -78,9 +87,9 @@ struct TargetReprojectionError {
 
         for (int i = 0; i < N; ++i) {
             T point[3];
-            point[0] = T(model_[i].x);
-            point[1] = T(model_[i].y);
-            point[2] = T(model_[i].z);
+            point[0] = T(model_[i].x());
+            point[1] = T(model_[i].y());
+            point[2] = T(model_[i].z());
 
             ceres::QuaternionRotatePoint(cam2target_rot, point, cam2point);
             cam2point[0] += cam2target_pos[0];
@@ -100,8 +109,8 @@ struct TargetReprojectionError {
 
 
             // The error is the difference between the predicted and observed position.
-            residuals[i * 2 + 0] = predicted_x - T(observed_[i].x);
-            residuals[i * 2 + 1] = predicted_y - T(observed_[i].y);
+            residuals[i * 2 + 0] = predicted_x - T(observed_[i].x());
+            residuals[i * 2 + 1] = predicted_y - T(observed_[i].y());
         }
 
         return true;
@@ -119,12 +128,11 @@ struct TargetReprojectionError {
                                         calibration, model)));
     }
 
-    const vision::Position2DList observed_;
-    const spatial::Pose6D camera2world_;
-    traact::Scalar camera[7];
-    const vision::CameraCalibration calibration_;
-    const vision::Position3DList model_;
 
+    double camera[7];
+    const vision::CameraCalibration calibration_;
+    std::vector<Eigen::Vector3d> model_;
+    std::vector<Eigen::Vector2d> observed_;
 };
 
 class TargetReprojectionErrorFactory {

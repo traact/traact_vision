@@ -13,29 +13,31 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
+#include <traact/opencv/OpenCVUtils.h>
 
-Eigen::Vector3<traact::Scalar> test_point(const std::vector<traact::spatial::Pose6D> &cam_2_world,
+traact::vision::Position3D test_point(const std::vector<traact::spatial::Pose6D> &cam_2_world,
                            const std::vector<traact::vision::CameraCalibration> &calibrations,
-                           const Eigen::Vector3<traact::Scalar> &test_position,
+                           const traact::vision::Position3D &test_position,
                            const traact::Scalar noise = 0) {
     using namespace traact::math;
     using namespace traact::vision;
     using namespace Eigen;
 
-    std::vector<Vector2<traact::Scalar>> image_points;
+    traact::vision::Position2DList image_points;
     for (int i = 0; i < cam_2_world.size(); ++i) {
-//        Vector2<traact::Scalar> point = reproject_point(cam_2_world[i], calibrations[i], test_position);
-//        Vector2<traact::Scalar> pixel_noise;
-//        pixel_noise.setRandom();
-//        pixel_noise *= noise;
-//        point += pixel_noise;
-//
-//        image_points.push_back(point);
+        auto point = reproject_point(cam_2_world[i], calibrations[i], test_position);
+        Vector2<traact::Scalar> pixel_noise;
+        pixel_noise.setRandom();
+        pixel_noise *= noise;
+        point.x += pixel_noise.x();
+        point.y += pixel_noise.y();
+
+        image_points.push_back(point);
     }
 
-    Vector3<traact::Scalar> p3_result;
+    Position3D p3_result;
 
-    //estimate_3d_point(p3_result, cam_2_world, calibrations, image_points);
+    estimate_3d_point(p3_result, cam_2_world, calibrations, image_points);
 
     return p3_result;
 
@@ -58,20 +60,27 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
     {
         traact::spatial::Pose6D marker_pose;
         std::vector<traact::spatial::Pose6D> cam_2_world;
-        marker_pose = traact::spatial::Translation3D(0.1, -0.5, -3);// * AngleAxis<traact::Scalar>(M_PI, Vector3<traact::Scalar>::UnitY());
+        marker_pose = traact::spatial::Translation3D(0.1, -0.5, -3) * AngleAxis<traact::Scalar>(M_PI, Vector3<traact::Scalar>::UnitY());
 
-        cam_2_world.push_back(traact::spatial::Pose6D::Identity());
-        cam_2_world.push_back(traact::spatial::Translation3D(-0.1, 0, 0) * AngleAxis<traact::Scalar> ::Identity());
+        traact::spatial::Pose6D world_camera_0_pose = traact::spatial::Pose6D::Identity();
+        traact::spatial::Pose6D world_camera_1_pose = traact::spatial::Pose6D::Identity() * traact::spatial::Translation3D(-0.1, 0, 0);
+
+        cam_2_world.push_back(world_camera_0_pose.inverse());
+        cam_2_world.push_back(world_camera_1_pose.inverse());
 
         std::vector<CameraCalibration> calibrations;
         for (int i = 0; i < cam_2_world.size(); ++i) {
             calibrations.push_back(calibration);
         }
 
-        Vector3<traact::Scalar> p3_result = test_point(cam_2_world, calibrations, marker_pose.translation(), 0);
-        EXPECT_NEAR(marker_pose.translation().x(), p3_result.x(), 1e-9);
-        EXPECT_NEAR(marker_pose.translation().y(), p3_result.y(), 1e-9);
-        EXPECT_NEAR(marker_pose.translation().z(), p3_result.z(), 1e-9);
+
+
+        Eigen::Vector3<traact::Scalar> pos = marker_pose.translation();
+
+        auto p3_result = test_point(cam_2_world, calibrations, traact::eigen2cv(pos), 0);
+        EXPECT_NEAR(pos.x(), p3_result.x, 5e-6);
+        EXPECT_NEAR(pos.y(), p3_result.y, 5e-6);
+        EXPECT_NEAR(pos.z(), p3_result.z, 5e-6);
     }
 
     {
@@ -103,11 +112,11 @@ TEST(TraactVisionTestSuite, Estimate3dPointTest_NoDistortion) {
         for (int i = 0; i < cam_2_world.size(); ++i) {
             calibrations.push_back(calibration);
         }
-
-        Vector3<traact::Scalar> p3_result = test_point(cam_2_world, calibrations, marker_pose.translation(), 0);
-        EXPECT_NEAR(marker_pose.translation().x(), p3_result.x(), 1e-9);
-        EXPECT_NEAR(marker_pose.translation().y(), p3_result.y(), 1e-9);
-        EXPECT_NEAR(marker_pose.translation().z(), p3_result.z(), 1e-9);
+        Eigen::Vector3<traact::Scalar> pos = marker_pose.translation();
+        auto p3_result = test_point(cam_2_world, calibrations,traact::eigen2cv(pos), 0);
+        EXPECT_NEAR(marker_pose.translation().x(), p3_result.x, 5e-6);
+        EXPECT_NEAR(marker_pose.translation().y(), p3_result.y, 5e-6);
+        EXPECT_NEAR(marker_pose.translation().z(), p3_result.z, 5e-6);
     }
 
 }

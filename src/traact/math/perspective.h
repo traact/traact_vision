@@ -29,12 +29,12 @@ bool estimate_3d_point(vision::Position3D  &result,
                        const vision::Position2DList &image_point,
                        double *covariance_output = 0);
 
-bool estimate_3d_pose(spatial::Pose6D &result,
-                      const std::vector<traact::spatial::Pose6D> &cam2world,
-                      const std::vector<vision::CameraCalibration> &intrinsics,
-                      const std::vector<vision::Position2DList> &image_point,
-                      const vision::Position3DList &model,
-                      double *covariance_output = 0);
+bool estimatePose6D(spatial::Pose6D &result,
+                    const std::vector<traact::spatial::Pose6D> &cam2world,
+                    const std::vector<vision::CameraCalibration> &intrinsics,
+                    const std::vector<vision::Position2DList> &image_point,
+                    const std::vector<vision::Position3DList> &model,
+                    double *covariance_output = 0);
 
 Eigen::Matrix<traact::Scalar, 3, 4> create_projection_matrix(const traact::spatial::Pose6D &cam2world,
                                                      const vision::CameraCalibration &calibration);
@@ -57,6 +57,10 @@ traact::Scalar reprojectionError(const traact::spatial::Pose6D &camera_to_world,
                                  const vision::Position2D &image_points,
                                  const vision::CameraCalibration &intrinsics,
                                  const vision::Position3D &world_to_points);
+traact::Scalar reprojectionError( const std::vector<traact::spatial::Pose6D> &camera_to_world,
+                                  const std::vector<vision::Position2DList> &image_point,
+                                  const std::vector<vision::CameraCalibration> &intrinsics,
+                                  const std::vector<vision::Position3DList> &world_to_points);
 }
 
 #endif //TRAACTMULTI_PERSPECTIVE_H
