@@ -84,8 +84,10 @@ CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Ca
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position2DHeader) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DHeader) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position2DListHeader) \
-CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DListHeader)
-
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DListHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, FeatureHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, FeatureListHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, KeyPointListHeader)
 
 #define REGISTER_VISION_COMPONENTS(external_component) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, ImageHeader) \
@@ -93,7 +95,10 @@ REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, CameraCalibrationHeader
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position2DHeader) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DHeader) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position2DListHeader) \
-REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DListHeader)
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DListHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, FeatureHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, FeatureListHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, KeyPointListHeader)
 
 
 #endif //TRAACT_VISION_SRC_TRAACT_VISION_H_

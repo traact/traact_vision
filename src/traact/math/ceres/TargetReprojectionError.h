@@ -40,6 +40,23 @@ struct TargetReprojectionError {
             model_.template emplace_back(point.x, point.y, point.z);
         }
     }
+    TargetReprojectionError(std::vector<Eigen::Vector2d> observed,
+                            traact::spatial::Pose6D cam2world,
+                            vision::CameraCalibration calibration,
+                            std::vector<Eigen::Vector3d> model)
+        : observed_(observed),model_(model), calibration_(calibration) {
+        traact::spatial::Rotation3D rot(cam2world.rotation());
+        rot = rot;
+        auto pos = cam2world.translation();
+        camera[0] = rot.w();
+        camera[1] = rot.x();
+        camera[2] = rot.y();
+        camera[3] = rot.z();
+
+        camera[4] = pos.x();
+        camera[5] = pos.y();
+        camera[6] = pos.z();
+    }
 
     template<typename T>
     bool operator()(const T *const target_pose,
@@ -167,6 +184,7 @@ class TargetReprojectionErrorFactory {
         }
 
     }
+
 };
 }
 
