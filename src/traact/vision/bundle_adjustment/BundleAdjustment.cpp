@@ -72,8 +72,8 @@ bool BundleAdjustment::Optimize() {
 
         auto camera2world = cam->getExtrinsic();
 
-        spatial::Rotation3D rot(camera2world.rotation());
-        spatial::Position3D pos(camera2world.translation());
+        Eigen::Quaternion<Scalar> rot(camera2world.rotation());
+        Eigen::Vector3<Scalar> pos(camera2world.translation());
 
 
         cam_parameter[0] = rot.w();
