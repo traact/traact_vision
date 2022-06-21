@@ -32,40 +32,6 @@ FeatureID createFeatureId() {
 int getOpenCvType(const ImageHeader &header) {
     return CV_MAKETYPE(getOpenCvDepth(header.base_type), header.channels);
 }
-void setOpenCvType(const cv::Mat &opencv_type, ImageHeader &header) {
-    header.width = opencv_type.cols;
-    header.height = opencv_type.rows;
-    header.stride = opencv_type.step;
-
-    auto opencv_depth = opencv_type.type() & CV_MAT_DEPTH_MASK;
-    auto channels = 1 + (opencv_type.type() >> CV_CN_SHIFT);
-    header.channels = channels;
-
-    switch (opencv_depth) {
-
-        case CV_8U: header.base_type = BaseType::UINT_8;
-            break;
-        case CV_8S: header.base_type = BaseType::INT_8;
-            break;
-        case CV_16U: header.base_type = BaseType::UINT_16;
-            break;
-        case CV_16S: header.base_type = BaseType::INT_16;
-            break;
-        case CV_32S: header.base_type = BaseType::INT_32;
-            break;
-        case CV_16F: header.base_type = BaseType::FLOAT_16;
-            break;
-        case CV_32F: header.base_type = BaseType::FLOAT_32;
-            break;
-        case CV_64F: header.base_type = BaseType::FLOAT_64;
-            break;
-        default: {
-            SPDLOG_ERROR("unknown opencv depth type {0}", opencv_depth);
-            header.base_type = BaseType::UNKNOWN;
-            break;
-        }
-    }
-}
 
 void ImageHeader::copyFrom(const ImageHeader &header) {
     width = header.width;
@@ -74,6 +40,38 @@ void ImageHeader::copyFrom(const ImageHeader &header) {
     stride = header.stride;
     pixel_format = header.pixel_format;
     base_type = header.base_type;
+}
+void ImageHeader::setFrom(const cv::Mat &opencv_type) {
+    width = opencv_type.cols;
+    height = opencv_type.rows;
+    stride = opencv_type.step;
+
+    auto opencv_depth = opencv_type.type() & CV_MAT_DEPTH_MASK;
+    channels = 1 + (opencv_type.type() >> CV_CN_SHIFT);
+
+    switch (opencv_depth) {
+        case CV_8U: base_type = BaseType::UINT_8;
+            break;
+        case CV_8S: base_type = BaseType::INT_8;
+            break;
+        case CV_16U: base_type = BaseType::UINT_16;
+            break;
+        case CV_16S: base_type = BaseType::INT_16;
+            break;
+        case CV_32S: base_type = BaseType::INT_32;
+            break;
+        case CV_16F: base_type = BaseType::FLOAT_16;
+            break;
+        case CV_32F: base_type = BaseType::FLOAT_32;
+            break;
+        case CV_64F: base_type = BaseType::FLOAT_64;
+            break;
+        default: {
+            SPDLOG_ERROR("unknown opencv depth type {0}", opencv_depth);
+            base_type = BaseType::UNKNOWN;
+            break;
+        }
+    }
 }
 void Feature::createIds() {
     feature_id = createFeatureId();

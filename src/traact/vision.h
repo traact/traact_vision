@@ -64,8 +64,8 @@ struct TRAACT_VISION_EXPORT ImageHeader {
     PixelFormat pixel_format{PixelFormat::UNKNOWN_PIXELFORMAT};
     BaseType base_type{BaseType::UNKNOWN};
 
-    void initData(Image& image, const ImageHeader& request);
     void copyFrom(const ImageHeader &header);
+    void setFrom(const cv::Mat &opencv_type);
 };
 
 class TRAACT_VISION_EXPORT ImageHeaderFactory : public traact::buffer::TemplatedDefaultDataFactory<ImageHeader> {
