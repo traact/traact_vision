@@ -42,12 +42,16 @@ bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const visi
         SPDLOG_ERROR("size of image and model points differ");
         return false;
     }
+
+    if (image_points.size() < 4) {
+        SPDLOG_ERROR("at least four points needed, 6 if non planar");
+        return false;
+    }
+
     cv::Mat opencv_intrinsics;
     cv::Mat opencv_distortion;
-    cv::Mat tvec(3, 1, cv::DataType<traact::Scalar>::type);
-    cv::Mat rvec(3, 1, cv::DataType<traact::Scalar>::type);
-
-    size_t count_points = image_points.size();
+    cv::Mat t_vec;
+    cv::Mat r_vec;
 
 
     traact2cv(intrinsics, opencv_intrinsics, opencv_distortion);
@@ -57,38 +61,17 @@ bool traact::math::estimate_camera_pose(spatial::Pose6D &pose_result, const visi
                                image_points,
                                opencv_intrinsics,
                                opencv_distortion,
-                               rvec,
-                               tvec,
+                               r_vec,
+                               t_vec,
                                false,
                                cv::SOLVEPNP_ITERATIVE);
-    //bool result = cv::solvePnP(model_points_opencv, image_points_opencv, opencv_intrinsics, opencv_distortion, rvec, tvec, false, cv::SOLVEPNP_P3P  );
-
-
-
 
     if (!result)
         return false;
 
-    cv::Mat R;
-    cv::Rodrigues(rvec, R);
-    Eigen::Matrix3<traact::Scalar> R_eigen;
-    cv2eigen(R, R_eigen);
-    Eigen::Vector3<traact::Scalar> T_eigen(tvec.at<traact::Scalar>(0), tvec.at<traact::Scalar>(1), tvec.at<traact::Scalar>(2));
 
-    Eigen::Matrix4<traact::Scalar> rotate_cs;
-    rotate_cs.setIdentity();
-    rotate_cs(0, 0) = -1;
-    rotate_cs(1, 1) = -1;
-    rotate_cs(3, 3) = -1;
+    cv2traact(r_vec, t_vec, pose_result);
 
-    Eigen::Matrix4<traact::Scalar> Trans;
-    Trans.setIdentity();
-    Trans.block<3, 3>(0, 0) = R_eigen;
-    Trans.block<3, 1>(0, 3) = T_eigen;
-
-
-    //pose_result = traact::spatial::Pose6D(Trans * rotate_cs);
-    pose_result = traact::spatial::Pose6D(Trans);
 
     return true;
 

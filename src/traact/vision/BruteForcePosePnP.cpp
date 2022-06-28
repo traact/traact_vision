@@ -54,21 +54,13 @@ bool testAllCombinations(const Position2DList &points_2d,
         if (!valid)
             continue;
 
-        cv::Mat t_vec(3, 1, cv::DataType<traact::Scalar>::type);
-        cv::Mat r_vec(3, 1, cv::DataType<traact::Scalar>::type);
-        bool local_result = cv::solvePnP(points_3d,
-                                         cur_image_points,
-                                         opencv_intrinsics,
-                                         opencv_distortion,
-                                         r_vec,
-                                         t_vec,
-                                         false,
-                                         cv::SOLVEPNP_ITERATIVE);
+        spatial::Pose6D pose;
+        bool local_result = math::estimate_camera_pose(pose, cur_image_points,
+                                         calibration,
+                                         points_3d);
         if (local_result) {
 
-            spatial::Pose6D pose;
-            cv2traact(r_vec, t_vec, pose);
-            double error = traact::math::reprojectionError(pose, cur_image_points, calibration, points_3d);
+            auto error = traact::math::reprojectionError(pose, cur_image_points, calibration, points_3d);
 
             if (error < max_error && error < current_min_error) {
 
@@ -154,22 +146,11 @@ Scalar testCombination(const Position2DList &points_2D,
         cur_image_points[index] = points_2D[point_index[index]];
     }
 
-    auto [opencv_intrinsics, opencv_distortion] = traact2cv(calibration);
+    bool local_result = math::estimate_camera_pose(output, cur_image_points, calibration, points_3D);
 
-    cv::Mat t_vec(3, 1, cv::DataType<traact::Scalar>::type);
-    cv::Mat r_vec(3, 1, cv::DataType<traact::Scalar>::type);
-    bool local_result = cv::solvePnP(points_3D,
-                                     cur_image_points,
-                                     opencv_intrinsics,
-                                     opencv_distortion,
-                                     r_vec,
-                                     t_vec,
-                                     false,
-                                     cv::SOLVEPNP_ITERATIVE);
     if (local_result) {
-        spatial::Pose6D pose;
-        cv2traact(r_vec, t_vec, pose);
-        double error = traact::math::reprojectionError(pose, cur_image_points, calibration, points_3D);
+
+        double error = traact::math::reprojectionError(output, cur_image_points, calibration, points_3D);
 
         return error;
     }
