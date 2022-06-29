@@ -80,5 +80,9 @@ bool UndistortionHelper::UndistortImage(const cv::Mat &input, cv::Mat &output) {
 
     return true;
 }
+void UndistortionHelper::reset() {
+    distorted_calibration_ = CameraCalibration();
+
+}
 
 }

@@ -6,11 +6,13 @@
 
 namespace traact::vision::outside_in {
 
+
+
 void estimatePoints(const std::vector<const spatial::Pose6D *> &camera2world,
                     const std::vector<const CameraCalibration *> &calibration,
                     const std::vector<const KeyPointList *> &input,
                     Position3DList &output_points,
-                    std::vector<std::map<size_t, size_t>> *output_matches) {
+                    std::vector<std::map<size_t, size_t>> *output_matches, EstimatePointsParameter parameter) {
 
     if(camera2world.size() != calibration.size() || input.empty()){
         return;
@@ -22,7 +24,6 @@ void estimatePoints(const std::vector<const spatial::Pose6D *> &camera2world,
         cameras[i].setData(*camera2world[i], *calibration[i], *input[i]);
     }
 
-    traact::Scalar distance_threshold = 0.01;
     std::vector<Point3DCandidate> candidates;
     for (int camera_idx = 0; camera_idx < cameras.size(); ++camera_idx) {
         for (int point_idx = 0; point_idx < cameras[camera_idx].input_.size(); ++point_idx) {
@@ -56,7 +57,7 @@ void estimatePoints(const std::vector<const spatial::Pose6D *> &camera2world,
                     Eigen::Vector3<traact::Scalar> diff = line_2.origin() - line_1.origin();
                     traact::Scalar distance = std::abs(n.dot(diff));
                     //SPDLOG_INFO("Camera {0} Point {1} to {2} {3}, distance {4}", camera_idx, point_idx, camera_idx2, point_idx2, distance);
-                    if (distance < distance_threshold) {
+                    if (distance < parameter.distance_threshold) {
                         current_candidate.addCandidate(camera_idx_2, point_idx_2);
                     }
 
@@ -73,7 +74,7 @@ void estimatePoints(const std::vector<const spatial::Pose6D *> &camera2world,
         auto good_candidates = candidate.getGoodCandidates();
         auto candidate_size = good_candidates.size();
         //SPDLOG_INFO("new candidate with good points {0}", candidate_size);
-        if (candidate_size < 2)
+        if (candidate_size < parameter.min_candidates)
             continue;
 
         std::vector<vision::CameraCalibration> calibrations(candidate_size);
@@ -98,7 +99,7 @@ void estimatePoints(const std::vector<const spatial::Pose6D *> &camera2world,
         for (int i = 0; i < cam2world_poses.size(); ++i) {
             traact::Scalar
                 error = math::reprojectionError(cam2world_poses[i], image_points[i], calibrations[i], result);
-            if (error > 5)
+            if (error > parameter.max_error)
                 result_valid = false;
         }
         if (!result_valid)

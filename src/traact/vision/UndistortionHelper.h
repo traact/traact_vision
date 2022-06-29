@@ -22,6 +22,7 @@ class UndistortionHelper {
     CameraCalibration GetUndistortedCalibration();
 
     bool UndistortImage(const cv::Mat &input, cv::Mat &output);
+    void reset();
 
  protected:
     cv::Mat mapX_;
