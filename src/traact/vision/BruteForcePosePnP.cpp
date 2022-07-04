@@ -96,7 +96,7 @@ bool tryClusterCombinations(const Position2DList &points2d,
                             Scalar max_distance,
                             std::vector<size_t> *output_points) {
 
-    int th_distance = 100; // radius tolerance
+    int th_distance = max_distance; // radius tolerance
     int th2 = th_distance * th_distance; // squared radius tolerance
     std::vector<int> labels;
 
