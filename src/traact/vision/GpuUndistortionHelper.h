@@ -1,18 +1,18 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#ifndef TRAACT_VISION_SRC_TRAACT_VISION_GPUUNDISTORTIONHELPER_H_
-#define TRAACT_VISION_SRC_TRAACT_VISION_GPUUNDISTORTIONHELPER_H_
+#ifndef TRAACT_VISION_SRC_TRAACT_VISION_GPUGpuUndistortionHelper_H_
+#define TRAACT_VISION_SRC_TRAACT_VISION_GPUGpuUndistortionHelper_H_
 
 #include "traact/vision_datatypes.h"
 #include <mutex>
 
 namespace traact::vision {
 
-class UndistortionHelper {
+class GpuUndistortionHelper {
  public:
-    UndistortionHelper() = default;
-    UndistortionHelper(const UndistortionHelper &other);
-    ~UndistortionHelper() = default;
+    GpuUndistortionHelper() = default;
+    GpuUndistortionHelper(const GpuUndistortionHelper &other);
+    ~GpuUndistortionHelper() = default;
 
     void init(const CameraCalibration &calibration,
               bool optimize_intrinsics = false,
@@ -21,12 +21,12 @@ class UndistortionHelper {
 
     CameraCalibration getUndistortedCalibration();
 
-    bool undistortImage(const cv::Mat &input, cv::Mat &output);
+    bool undistortImage(const cv::cuda::GpuMat &input, cv::cuda::GpuMat &output, cv::cuda::Stream &stream);
     void reset();
 
  protected:
-    cv::Mat mapX_;
-    cv::Mat mapY_;
+    cv::cuda::GpuMat mapX_;
+    cv::cuda::GpuMat mapY_;
     CameraCalibration distorted_calibration_;
     CameraCalibration undistorted_calibration_;
     std::mutex init_mutex_;
@@ -35,4 +35,4 @@ class UndistortionHelper {
 
 }
 
-#endif //TRAACT_VISION_SRC_TRAACT_VISION_GPUUNDISTORTIONHELPER_H_
+#endif //TRAACT_VISION_SRC_TRAACT_VISION_GPUGpuUndistortionHelper_H_

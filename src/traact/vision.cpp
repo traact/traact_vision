@@ -73,6 +73,15 @@ void ImageHeader::setFrom(const cv::Mat &opencv_type) {
         }
     }
 }
+void ImageHeader::copyFrom(const GpuImageHeader &header) {
+    width = header.width;
+    height = header.height;
+    channels = header.channels;
+    stride = header.stride;
+    pixel_format = header.pixel_format;
+    base_type = header.base_type;
+}
+
 void Feature::createIds() {
     feature_id = createFeatureId();
     constructed_from.clear();
@@ -96,6 +105,55 @@ void FeatureList::clear() {
     constructed_from.clear();
     descriptor = cv::Mat();
 }
+void GpuImageHeader::copyFrom(const ImageHeader &header) {
+    width = header.width;
+    height = header.height;
+    channels = header.channels;
+    stride = header.stride;
+    pixel_format = header.pixel_format;
+    base_type = header.base_type;
+}
+void GpuImageHeader::copyFrom(const GpuImageHeader &header) {
+    width = header.width;
+    height = header.height;
+    channels = header.channels;
+    stride = header.stride;
+    pixel_format = header.pixel_format;
+    base_type = header.base_type;
+}
+void GpuImageHeader::setFrom(const cv::cuda::GpuMat &opencv_type) {
+    width = opencv_type.cols;
+    height = opencv_type.rows;
+    stride = opencv_type.step;
+
+    auto opencv_depth = opencv_type.type() & CV_MAT_DEPTH_MASK;
+    channels = 1 + (opencv_type.type() >> CV_CN_SHIFT);
+
+    switch (opencv_depth) {
+        case CV_8U: base_type = BaseType::UINT_8;
+            break;
+        case CV_8S: base_type = BaseType::INT_8;
+            break;
+        case CV_16U: base_type = BaseType::UINT_16;
+            break;
+        case CV_16S: base_type = BaseType::INT_16;
+            break;
+        case CV_32S: base_type = BaseType::INT_32;
+            break;
+        case CV_16F: base_type = BaseType::FLOAT_16;
+            break;
+        case CV_32F: base_type = BaseType::FLOAT_32;
+            break;
+        case CV_64F: base_type = BaseType::FLOAT_64;
+            break;
+        default: {
+            SPDLOG_ERROR("unknown opencv depth type {0}", opencv_depth);
+            base_type = BaseType::UNKNOWN;
+            break;
+        }
+    }
+}
+
 }
 
 namespace traact::component::facade {
@@ -106,6 +164,7 @@ CREATE_VISION_COMPONENTS(ApplicationSyncSink)
 BEGIN_TRAACT_PLUGIN_REGISTRATION
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::CameraCalibrationHeader)
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::ImageHeader)
+    REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::GpuImageHeader)
 
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position2DHeader)
     REGISTER_DEFAULT_TRAACT_TYPE(traact::vision::Position3DHeader)

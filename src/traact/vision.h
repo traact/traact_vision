@@ -6,6 +6,7 @@
 #include "vision_datatypes.h"
 #include "traact/traact.h"
 #include "traact/vision/Image.h"
+#include "traact/vision/GPUImage.h"
 #include <traact/spatial.h>
 
 namespace traact::vision {
@@ -51,6 +52,8 @@ CREATE_TRAACT_HEADER_TYPE(CameraCalibrationHeader,
                           "vision:CameraCalibration",
                           TRAACT_VISION_EXPORT)
 
+struct GpuImageHeader;
+
 struct TRAACT_VISION_EXPORT ImageHeader {
     ImageHeader() = default;
     using NativeType = Image;
@@ -65,6 +68,7 @@ struct TRAACT_VISION_EXPORT ImageHeader {
     BaseType base_type{BaseType::UNKNOWN};
 
     void copyFrom(const ImageHeader &header);
+    void copyFrom(const GpuImageHeader &header);
     void setFrom(const cv::Mat &opencv_type);
 };
 
@@ -72,6 +76,28 @@ class TRAACT_VISION_EXPORT ImageHeaderFactory : public traact::buffer::Templated
  TRAACT_PLUGIN_ENABLE(traact::buffer::TemplatedDefaultDataFactory<ImageHeader>, traact::buffer::DataFactory)
 };
 
+struct TRAACT_VISION_EXPORT GpuImageHeader {
+    GpuImageHeader() = default;
+    using NativeType = GPUImage;
+    static constexpr const char *NativeTypeName{"traact::vision::GpuImage"};
+    static constexpr const char *MetaType{"vision:GpuImage"};
+    const size_t size = sizeof(GPUImage);
+    int width{0};
+    int height{0};
+    int channels{0};
+    size_t stride{0};
+    PixelFormat pixel_format{PixelFormat::UNKNOWN_PIXELFORMAT};
+    BaseType base_type{BaseType::UNKNOWN};
+
+    void copyFrom(const ImageHeader &header);
+    void copyFrom(const GpuImageHeader &header);
+    void setFrom(const cv::cuda::GpuMat &opencv_type);
+
+};
+
+class TRAACT_VISION_EXPORT GpuImageHeaderFactory : public traact::buffer::TemplatedDefaultDataFactory<GpuImageHeader> {
+ TRAACT_PLUGIN_ENABLE(traact::buffer::TemplatedDefaultDataFactory<GpuImageHeader>, traact::buffer::DataFactory)
+};
 
 int TRAACT_VISION_EXPORT getOpenCvDepth(BaseType type);
 
@@ -80,6 +106,7 @@ int TRAACT_VISION_EXPORT getOpenCvDepth(BaseType type);
 
 #define CREATE_VISION_COMPONENTS(external_component) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, ImageHeader) \
+CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, GpuImageHeader) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, CameraCalibrationHeader) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position2DHeader) \
 CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Position3DHeader) \
@@ -91,6 +118,7 @@ CREATE_TEMPLATED_TRAACT_COMPONENT_FACTORY(external_component, traact::vision, Ke
 
 #define REGISTER_VISION_COMPONENTS(external_component) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, ImageHeader) \
+REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, GpuImageHeader) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, CameraCalibrationHeader) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position2DHeader) \
 REGISTER_TEMPLATED_DEFAULT_COMPONENT(external_component, Position3DHeader) \

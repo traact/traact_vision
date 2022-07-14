@@ -1,12 +1,15 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "UndistortionHelper.h"
+#include "GpuUndistortionHelper.h"
 #include "traact/opencv/OpenCVUtils.h"
 #include <traact/util/Logging.h>
+
+#include <opencv2/cudawarping.hpp>
+
 namespace traact::vision {
 void
-UndistortionHelper::init(const CameraCalibration &calibration, bool optimize_intrinsics,
-                         bool center_principle_point, traact::Scalar alpha) {
+GpuUndistortionHelper::init(const CameraCalibration &calibration, bool optimize_intrinsics,
+                            bool center_principle_point, traact::Scalar alpha) {
 
     // init is not thread safe while the undistortion is
     std::lock_guard init_guard(init_mutex_);
@@ -51,23 +54,27 @@ UndistortionHelper::init(const CameraCalibration &calibration, bool optimize_int
     std::cout << cv_intrinsics_undis;
     std::cout << "\n";
 
+    cv::Mat x_tmp, y_tmp;
     cv::initUndistortRectifyMap(cv_intrinsics_dis,
                                 cv_distortion_dis,
                                 cv::Mat::eye(3, 3, CV_32F),
                                 cv_intrinsics_undis,
                                 cv_image_size,
-                                CV_16SC2,
-                                mapX_,
-                                mapY_);
+                                CV_32FC1,
+                                x_tmp,
+                                y_tmp);
+
+    mapX_.upload(x_tmp);
+    mapY_.upload(y_tmp);
 
 }
 
-CameraCalibration UndistortionHelper::getUndistortedCalibration() {
+CameraCalibration GpuUndistortionHelper::getUndistortedCalibration() {
     return undistorted_calibration_;
 }
 
 
-UndistortionHelper::UndistortionHelper(const UndistortionHelper &other) {
+GpuUndistortionHelper::GpuUndistortionHelper(const GpuUndistortionHelper &other) {
     undistorted_calibration_ = other.undistorted_calibration_;
     distorted_calibration_ = other.distorted_calibration_;
     mapX_ = other.mapX_.clone();
@@ -75,12 +82,15 @@ UndistortionHelper::UndistortionHelper(const UndistortionHelper &other) {
 
 }
 
-bool UndistortionHelper::undistortImage(const cv::Mat &input, cv::Mat &output) {
-    cv::remap(input, output, mapX_, mapY_, cv::INTER_LINEAR);
+bool GpuUndistortionHelper::undistortImage(const cv::cuda::GpuMat &input,
+                                           cv::cuda::GpuMat &output,
+                                           cv::cuda::Stream &stream) {
+
+    cv::cuda::remap(input, output, mapX_, mapY_, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(), stream);
 
     return true;
 }
-void UndistortionHelper::reset() {
+void GpuUndistortionHelper::reset() {
     distorted_calibration_ = CameraCalibration();
 
 }
