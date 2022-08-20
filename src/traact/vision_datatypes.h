@@ -3,12 +3,12 @@
 #ifndef TRAACTMULTI_VISION_DATATYPES_H
 #define TRAACTMULTI_VISION_DATATYPES_H
 
-#include <traact/buffer/DataFactory.h>
 #include <traact/datatypes.h>
-#include <opencv2/core.hpp>
-#include <opencv2/core/cuda.hpp>
+//#include <opencv2/core.hpp>
+//#include <opencv2/core/cuda.hpp>
 #include <traact/traact_vision_export.h>
 #include <ostream>
+#include <vector>
 
 namespace traact::vision {
 
@@ -24,7 +24,8 @@ enum class TRAACT_VISION_EXPORT PixelFormat {
     RAW,
     DEPTH,
     FLOAT,
-    MJPEG
+    MJPEG,
+    UV2
 };
 
 struct TRAACT_VISION_EXPORT CameraCalibration {

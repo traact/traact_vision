@@ -4,5 +4,13 @@
 
 namespace traact::vision {
 
+Image::Image(const Image &image) {
+    value_ = image.value_;
+    owner_ = image.owner_;
 
+}
+Image &Image::operator=(const Image &image) {
+    value_ = image.value_;
+    owner_ = image.owner_;
+}
 } // traact::vision

@@ -1,7 +1,7 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
 #include "vision.h"
-
+#include <traact/component/generic_components.h>
 
 namespace traact::vision {
 
@@ -159,6 +159,12 @@ void GpuImageHeader::setFrom(const cv::cuda::GpuMat &opencv_type) {
 namespace traact::component::facade {
 CREATE_VISION_COMPONENTS(ApplicationAsyncSource)
 CREATE_VISION_COMPONENTS(ApplicationSyncSink)
+
+}
+
+namespace traact::component{
+CREATE_VISION_COMPONENTS(Buffer)
+CREATE_VISION_COMPONENTS(Gate)
 }
 
 BEGIN_TRAACT_PLUGIN_REGISTRATION
@@ -176,4 +182,6 @@ BEGIN_TRAACT_PLUGIN_REGISTRATION
 
     REGISTER_VISION_COMPONENTS(traact::component::facade::ApplicationAsyncSource)
     REGISTER_VISION_COMPONENTS(traact::component::facade::ApplicationSyncSink)
+    REGISTER_VISION_COMPONENTS(traact::component::Buffer)
+    REGISTER_VISION_COMPONENTS(traact::component::Gate)
 END_TRAACT_PLUGIN_REGISTRATION

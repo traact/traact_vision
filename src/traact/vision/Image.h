@@ -12,8 +12,8 @@ namespace traact::vision {
  class TRAACT_VISION_EXPORT Image : public util::ValueWrapper<cv::Mat>{
     public:
     Image() = default;
-    Image(Image const& image) = default;
-    Image& operator=(Image const& image) =default;
+    Image(Image const& image);
+    Image& operator=(Image const& image);
     Image(Image && image) = default;
     Image& operator=(Image && image) = default;
 };

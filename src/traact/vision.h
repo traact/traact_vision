@@ -56,10 +56,16 @@ struct GpuImageHeader;
 
 struct TRAACT_VISION_EXPORT ImageHeader {
     ImageHeader() = default;
+    ImageHeader(ImageHeader const& header) = default;
+    ImageHeader& operator=(ImageHeader const& header) = default;
+    ImageHeader(ImageHeader && header) = default;
+    ImageHeader& operator=(ImageHeader && header) = default;
+
     using NativeType = Image;
+
     static constexpr const char *NativeTypeName{"traact::vision::Image"};
     static constexpr const char *MetaType{"vision:Image"};
-    const size_t size = sizeof(Image);
+    static constexpr const size_t size = sizeof(Image);
     int width{0};
     int height{0};
     int channels{0};
@@ -78,10 +84,15 @@ class TRAACT_VISION_EXPORT ImageHeaderFactory : public traact::buffer::Templated
 
 struct TRAACT_VISION_EXPORT GpuImageHeader {
     GpuImageHeader() = default;
+    GpuImageHeader(GpuImageHeader const& header) = default;
+    GpuImageHeader& operator=(GpuImageHeader const& header) = default;
+    GpuImageHeader(GpuImageHeader && header) = default;
+    GpuImageHeader& operator=(GpuImageHeader && header) = default;
+
     using NativeType = GPUImage;
     static constexpr const char *NativeTypeName{"traact::vision::GpuImage"};
     static constexpr const char *MetaType{"vision:GpuImage"};
-    const size_t size = sizeof(GPUImage);
+    static constexpr const size_t size = sizeof(GPUImage);
     int width{0};
     int height{0};
     int channels{0};

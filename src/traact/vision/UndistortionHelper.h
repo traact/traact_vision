@@ -5,6 +5,7 @@
 
 #include "traact/vision_datatypes.h"
 #include <mutex>
+#include <opencv2/opencv.hpp>
 
 namespace traact::vision {
 
