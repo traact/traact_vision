@@ -21,17 +21,22 @@ class GpuUndistortionHelper {
               bool center_principle_point = true,
               traact::Scalar alpha = 0);
 
+    void init(cv::cuda::Stream &stream);
+
     CameraCalibration getUndistortedCalibration();
 
     bool undistortImage(const cv::cuda::GpuMat &input, cv::cuda::GpuMat &output, cv::cuda::Stream &stream);
     void reset();
 
  protected:
-    cv::cuda::GpuMat mapX_;
-    cv::cuda::GpuMat mapY_;
+    cv::cuda::GpuMat map_x_;
+    cv::cuda::GpuMat map_y_;
+    cv::Mat cpu_map_x_;
+    cv::Mat cpu_map_y_;
     CameraCalibration distorted_calibration_;
     CameraCalibration undistorted_calibration_;
     std::mutex init_mutex_;
+    bool uploaded_{false};
 
 };
 

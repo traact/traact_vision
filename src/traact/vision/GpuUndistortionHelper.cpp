@@ -8,8 +8,10 @@
 
 namespace traact::vision {
 void
-GpuUndistortionHelper::init(const CameraCalibration &calibration, bool optimize_intrinsics,
-                            bool center_principle_point, traact::Scalar alpha) {
+GpuUndistortionHelper::init(const CameraCalibration &calibration,
+                            bool optimize_intrinsics,
+                            bool center_principle_point,
+                            traact::Scalar alpha) {
 
     // init is not thread safe while the undistortion is
     std::lock_guard init_guard(init_mutex_);
@@ -46,26 +48,30 @@ GpuUndistortionHelper::init(const CameraCalibration &calibration, bool optimize_
     cv::Mat cv_distortion_undis;
     traact2cv(undistorted_calibration_, cv_intrinsics_undis, cv_distortion_undis);
 
-    std::cout << "from intrinscis:\n";
-    std::cout << cv_intrinsics_dis;
-    std::cout << "\n";
+    std::stringstream intrinsic_message;
+    intrinsic_message << "from intrinscis:\n";
+    intrinsic_message << cv_intrinsics_dis;
+    intrinsic_message << "\n";
 
-    std::cout << "to intrinscis:\n";
-    std::cout << cv_intrinsics_undis;
-    std::cout << "\n";
+    intrinsic_message << "to intrinscis:\n";
+    intrinsic_message << cv_intrinsics_undis;
+    intrinsic_message << "\n";
+    SPDLOG_INFO(intrinsic_message.str());
 
-    cv::Mat x_tmp, y_tmp;
     cv::initUndistortRectifyMap(cv_intrinsics_dis,
                                 cv_distortion_dis,
                                 cv::Mat::eye(3, 3, CV_32F),
                                 cv_intrinsics_undis,
                                 cv_image_size,
                                 CV_32FC1,
-                                x_tmp,
-                                y_tmp);
+                                cpu_map_x_,
+                                cpu_map_y_);
 
-    mapX_.upload(x_tmp);
-    mapY_.upload(y_tmp);
+    map_x_.create(cv_image_size, CV_32FC1 );
+    map_y_.create(cv_image_size, CV_32FC1 );
+
+    uploaded_ = false;
+
 
 }
 
@@ -77,8 +83,8 @@ CameraCalibration GpuUndistortionHelper::getUndistortedCalibration() {
 GpuUndistortionHelper::GpuUndistortionHelper(const GpuUndistortionHelper &other) {
     undistorted_calibration_ = other.undistorted_calibration_;
     distorted_calibration_ = other.distorted_calibration_;
-    mapX_ = other.mapX_.clone();
-    mapY_ = other.mapY_.clone();
+    map_x_ = other.map_x_.clone();
+    map_y_ = other.map_y_.clone();
 
 }
 
@@ -86,12 +92,20 @@ bool GpuUndistortionHelper::undistortImage(const cv::cuda::GpuMat &input,
                                            cv::cuda::GpuMat &output,
                                            cv::cuda::Stream &stream) {
 
-    cv::cuda::remap(input, output, mapX_, mapY_, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(), stream);
+    cv::cuda::remap(input, output, map_x_, map_y_, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(), stream);
 
     return true;
 }
 void GpuUndistortionHelper::reset() {
     distorted_calibration_ = CameraCalibration();
+
+}
+void GpuUndistortionHelper::init(cv::cuda::Stream &stream) {
+    if(!uploaded_){
+        map_x_.upload(cpu_map_x_, stream);
+        map_y_.upload(cpu_map_y_, stream);
+        uploaded_ = true;
+    }
 
 }
 
