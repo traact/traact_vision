@@ -20,7 +20,8 @@ set(VISION_SRC src/traact/vision.h src/traact/traact_vision_export.h
         src/traact/vision/bundle_adjustment/cost_function/CeresRefNPointReprojectionError.h
         src/traact/vision/bundle_adjustment/cost_function/CeresRefTargetNPointLengthError.h
         src/traact/vision/bundle_adjustment/cost_function/CeresTargetNPointReprojectionError.h
-        src/traact/vision/bundle_adjustment/cost_function/CostFunctionUtils.h src/traact/vision/GPUImage.cpp src/traact/vision/GPUImage.h src/traact/vision/GpuUndistortionHelper.cpp src/traact/vision/GpuUndistortionHelper.h)
+        src/traact/vision/bundle_adjustment/cost_function/CostFunctionUtils.h src/traact/vision/GPUImage.cpp src/traact/vision/GPUImage.h src/traact/vision/GpuUndistortionHelper.cpp src/traact/vision/GpuUndistortionHelper.h
+        src/traact/util/KinectLookupTable.cpp src/traact/util/KinectLookupTable.h)
 
 
 add_library(${CONAN_PACKAGE_NAME} SHARED ${VISION_SRC})
