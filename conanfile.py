@@ -27,7 +27,7 @@ class TraactPackage(ConanFile):
         self.requires("cuda_dev_config/[>=2.0]@camposs/stable")
         self.requires("opencv/4.5.5@camposs/stable")
         if self.options.with_tests:
-            self.requires("gtest/[>=1.11.0]")
+            self.requires("gtest/cci.20210126")
 
     def configure(self):
         self.options['opencv'].shared = self.options.shared
