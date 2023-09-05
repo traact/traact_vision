@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "Point3DCandidate.h"
+#include "traact/vision/outside_in/Point3DCandidate.h"
 
 namespace traact::vision {
 std::map<size_t, size_t> traact::vision::Point3DCandidate::getGoodCandidates() {

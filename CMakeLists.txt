@@ -1,42 +1,85 @@
 cmake_minimum_required(VERSION 3.16)
 
-if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-    include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-else ()
-    message(FATAL_ERROR "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
-endif ()
+set(TARGET_NAME traact_vision)
 
-list(APPEND CMAKE_MODULE_PATH ${CONAN_TRAACT_RUN_ENV_ROOT}/cmake)
+project(${TARGET_NAME} VERSION "0.0.0" LANGUAGES CXX)
 
-project(${CONAN_PACKAGE_NAME}_PROJECT VERSION ${CONAN_PACKAGE_VERSION})
+find_package(traact_base)
+list(APPEND CMAKE_MODULE_PATH ${traact_base_INCLUDE_DIR})
 
 include(traact_default_library_setup)
 
-set(VISION_SRC src/traact/vision.h src/traact/traact_vision_export.h
-        src/traact/component/vision/BasicVisionPattern.h
-        src/traact/vision/SubPixelEdgeDectection.h
-        src/traact/vision.cpp src/traact/math/perspective.cpp src/traact/math/perspective.h src/traact/vision_datatypes.h src/traact/opencv/OpenCVUtils.h src/traact/math/ceres/PointReprojectionError.h src/traact/math/utils.h src/traact/vision/UndistortionHelper.cpp src/traact/vision/UndistortionHelper.h
-        src/traact/util/GenerateMultiCameraBATestData.cpp src/traact/util/GenerateMultiCameraBATestData.h src/traact/math/ceres/TargetReprojectionError.h src/traact/math/ceres/DistanceError3D3D.h src/traact/vision/Image.cpp src/traact/vision/Image.h src/traact/vision/BruteForcePosePnP.cpp src/traact/vision/BruteForcePosePnP.h src/traact/vision/outside_in/Point3DCandidate.cpp src/traact/vision/outside_in/Point3DCandidate.h src/traact/vision/outside_in/TrackingCamera.cpp src/traact/vision/outside_in/TrackingCamera.h src/traact/vision/outside_in/PointEstimation.cpp src/traact/vision/outside_in/PointEstimation.h src/traact/vision/outside_in/FindTargetPoints.cpp src/traact/vision/outside_in/FindTargetPoints.h src/traact/vision/bundle_adjustment/BundleAdjustment.cpp src/traact/vision/bundle_adjustment/BundleAdjustment.h src/traact/vision/bundle_adjustment/BACamera.cpp src/traact/vision/bundle_adjustment/BACamera.h src/traact/vision/bundle_adjustment/BAData.cpp src/traact/vision/bundle_adjustment/BAData.h src/traact/vision/bundle_adjustment/BATarget.cpp src/traact/vision/bundle_adjustment/BATarget.h
-        src/traact/vision/bundle_adjustment/cost_function/CeresRefNPointReprojectionError.h
-        src/traact/vision/bundle_adjustment/cost_function/CeresRefTargetNPointLengthError.h
-        src/traact/vision/bundle_adjustment/cost_function/CeresTargetNPointReprojectionError.h
-        src/traact/vision/bundle_adjustment/cost_function/CostFunctionUtils.h src/traact/vision/GPUImage.cpp src/traact/vision/GPUImage.h src/traact/vision/GpuUndistortionHelper.cpp src/traact/vision/GpuUndistortionHelper.h
-        src/traact/util/KinectLookupTable.cpp src/traact/util/KinectLookupTable.h)
+set(VISION_PUBLIC_HEADER
+src/traact/vision.h     
+    include/traact/component/vision/BasicVisionPattern.h
+    include/traact/vision/SubPixelEdgeDectection.h
+    include/traact/math/perspective.h 
+    include/traact/vision_datatypes.h 
+    include/traact/opencv/OpenCVUtils.h 
+    include/traact/math/ceres/PointReprojectionError.h 
+    include/traact/math/utils.h 
+    include/traact/vision/UndistortionHelper.h
+    include/traact/util/GenerateMultiCameraBATestData.h 
+    include/traact/math/ceres/TargetReprojectionError.h 
+    include/traact/math/ceres/DistanceError3D3D.h 
+    src/traact/vision/Image.h 
+    include/traact/vision/BruteForcePosePnP.h 
+    include/traact/vision/outside_in/Point3DCandidate.h 
+    include/traact/vision/outside_in/TrackingCamera.h 
+    include/traact/vision/outside_in/PointEstimation.h 
+    include/traact/vision/outside_in/FindTargetPoints.h 
+    include/traact/vision/bundle_adjustment/BundleAdjustment.h 
+    include/traact/vision/bundle_adjustment/BACamera.h 
+    include/traact/vision/bundle_adjustment/BAData.h 
+    include/traact/vision/bundle_adjustment/BATarget.h
+    include/traact/vision/bundle_adjustment/cost_function/CeresRefNPointReprojectionError.h
+    include/traact/vision/bundle_adjustment/cost_function/CeresRefTargetNPointLengthError.h
+    include/traact/vision/bundle_adjustment/cost_function/CeresTargetNPointReprojectionError.h
+    include/traact/vision/bundle_adjustment/cost_function/CostFunctionUtils.h 
+    include/traact/vision/GPUImage.h 
+    include/traact/vision/GpuUndistortionHelper.h
+    include/traact/util/KinectLookupTable.h
+    )
+
+set(VISION_SRC 
+    src/traact/vision.cpp 
+    src/traact/math/perspective.cpp 
+    src/traact/vision/UndistortionHelper.cpp 
+    src/traact/util/GenerateMultiCameraBATestData.cpp 
+    src/traact/vision/BruteForcePosePnP.cpp 
+    src/traact/vision/outside_in/Point3DCandidate.cpp 
+    src/traact/vision/outside_in/TrackingCamera.cpp 
+    src/traact/vision/outside_in/PointEstimation.cpp 
+    src/traact/vision/outside_in/FindTargetPoints.cpp 
+    src/traact/vision/bundle_adjustment/BundleAdjustment.cpp 
+    src/traact/vision/bundle_adjustment/BACamera.cpp 
+    src/traact/vision/bundle_adjustment/BAData.cpp 
+    src/traact/vision/bundle_adjustment/BATarget.cpp 
+    src/traact/vision/Image.cpp
+    src/traact/vision/GPUImage.cpp 
+    src/traact/vision/GpuUndistortionHelper.cpp 
+    src/traact/util/KinectLookupTable.cpp 
+    )
 
 
-add_library(${CONAN_PACKAGE_NAME} SHARED ${VISION_SRC})
+add_library(${TARGET_NAME} SHARED ${VISION_SRC})
 
-conan_target_link_libraries(${CONAN_PACKAGE_NAME})
+find_package(traact_spatial)
+find_package(OpenCV)
 
-install(DIRECTORY "src/traact" # source directory
-        DESTINATION "include" # target directory
-        FILES_MATCHING # install only matched files
-        PATTERN "*.h" # select header files
-        )
+
+target_link_libraries(${TARGET_NAME} PUBLIC traact_core::traact_core traact_spatial::traact_spatial opencv::opencv)
+generate_export_header(${TARGET_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/traact/traact_vision_export.h)
+
+target_include_directories(${TARGET_NAME} PUBLIC
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 include(traact_default_library_final)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (WITH_TESTS)
     add_subdirectory(tests)
 endif ()
-

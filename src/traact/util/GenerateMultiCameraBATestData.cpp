@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "GenerateMultiCameraBATestData.h"
+#include "traact/util/GenerateMultiCameraBATestData.h"
 #include "traact/math/perspective.h"
 #include <spdlog/spdlog.h>
 #include <random>

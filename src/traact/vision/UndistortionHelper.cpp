@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "UndistortionHelper.h"
+#include "traact/vision/UndistortionHelper.h"
 #include "traact/opencv/OpenCVUtils.h"
 #include <traact/util/Logging.h>
 namespace traact::vision {

@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "TrackingCamera.h"
+#include "traact/vision/outside_in/TrackingCamera.h"
 #include "traact/math/perspective.h"
 #include "traact/opencv/OpenCVUtils.h"
 

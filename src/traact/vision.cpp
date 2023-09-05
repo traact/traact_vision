@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "vision.h"
+#include "traact/vision.h"
 #include <traact/component/generic_components.h>
 
 namespace traact::vision {

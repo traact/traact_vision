@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "FindTargetPoints.h"
+#include "traact/vision/outside_in/FindTargetPoints.h"
 #include "traact/opencv/OpenCVUtils.h"
 
 namespace traact::vision::outside_in {

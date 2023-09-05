@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 #include <traact/opencv/OpenCVUtils.h>
-#include "BATarget.h"
+#include "traact/vision/bundle_adjustment/BATarget.h"
 
 namespace traact::vision::bundle_adjustment {
 

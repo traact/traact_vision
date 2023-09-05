@@ -1,3 +1,3 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "GPUImage.h"
+#include "traact/vision/GPUImage.h"

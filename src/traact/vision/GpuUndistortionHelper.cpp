@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "GpuUndistortionHelper.h"
+#include "traact/vision/GpuUndistortionHelper.h"
 #include "traact/opencv/OpenCVUtils.h"
 #include <traact/util/Logging.h>
 

@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "BundleAdjustment.h"
+#include "traact/vision/bundle_adjustment/BundleAdjustment.h"
 #include "traact/vision/bundle_adjustment/cost_function/CeresTargetNPointReprojectionError.h"
 #include "traact/vision/bundle_adjustment/cost_function/CeresRefTargetNPointLengthError.h"
 

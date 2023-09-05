@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "BruteForcePosePnP.h"
+#include "traact/vision/BruteForcePosePnP.h"
 #include "traact/math/perspective.h"
 #include "traact/opencv/OpenCVUtils.h"
 

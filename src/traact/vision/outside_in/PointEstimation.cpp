@@ -1,7 +1,7 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "PointEstimation.h"
-#include "Point3DCandidate.h"
+#include "traact/vision/outside_in/PointEstimation.h"
+#include "traact/vision/outside_in/Point3DCandidate.h"
 #include "traact/math/perspective.h"
 
 namespace traact::vision::outside_in {

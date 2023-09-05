@@ -1,29 +1,27 @@
 
+find_package(GTest)
+
 set(TEST_SOURCES
         test_main.cpp
         test_pose_estimation.cpp test_estimate_3d_point.cpp test_ceres_elements.cpp)
-
-set(CMAKE_CUDA_STANDARD 14)
 
 add_executable(traact_vision_test ${TEST_SOURCES})
 
 set_target_properties(traact_vision_test PROPERTIES CXX_STANDARD 17)
 
 target_link_libraries(traact_vision_test PUBLIC
-        ${CONAN_PACKAGE_NAME}
+        traact_vision
+        GTest::gtest
         )
 
 
-# conan weirdness ...
-if (TARGET CONAN_PKG::GTest)
-    target_link_libraries(traact_vision_test PUBLIC CONAN_PKG::GTest)
-else ()
-    target_link_libraries(traact_vision_test PUBLIC CONAN_PKG::gtest)
-endif ()
-
-
-target_include_directories(traact_vision_test
-        PRIVATE
-        ${PROJECT_BINARY_DIR}/
-        ${PROJECT_SOURCE_DIR}/src
+target_include_directories(traact_vision_test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src        
+        ${CMAKE_CURRENT_SOURCE_DIR}/../include
+        ${CMAKE_CURRENT_SOURCE_DIR}
         )
+
+install(TARGETS traact_vision_test
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

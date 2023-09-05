@@ -1,6 +1,6 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
-#include "BACamera.h"
+#include "traact/vision/bundle_adjustment/BACamera.h"
 #include <traact/math/perspective.h>
 namespace traact::vision::bundle_adjustment {
 bool BACamera::isStaticPosition() const {

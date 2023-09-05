@@ -1,5 +1,5 @@
 
-#include "KinectLookupTable.h"
+#include "traact/util/KinectLookupTable.h"
 
 namespace traact::vision {
 
