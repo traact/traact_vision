@@ -66,9 +66,12 @@ add_library(${TARGET_NAME} SHARED ${VISION_SRC})
 
 find_package(traact_spatial)
 find_package(OpenCV)
+find_package(Ceres)
 
 
-target_link_libraries(${TARGET_NAME} PUBLIC traact_core::traact_core traact_spatial::traact_spatial opencv::opencv)
+
+
+target_link_libraries(${TARGET_NAME} PUBLIC traact_core::traact_core traact_spatial::traact_spatial opencv::opencv Ceres::ceres)
 generate_export_header(${TARGET_NAME} EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/traact/traact_vision_export.h)
 
 target_include_directories(${TARGET_NAME} PUBLIC

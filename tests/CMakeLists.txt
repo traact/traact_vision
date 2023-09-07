@@ -9,9 +9,12 @@ add_executable(traact_vision_test ${TEST_SOURCES})
 
 set_target_properties(traact_vision_test PROPERTIES CXX_STANDARD 17)
 
+
 target_link_libraries(traact_vision_test PUBLIC
         traact_vision
+        traact_spatial
         GTest::gtest
+        Ceres::ceres
         )
 
 
