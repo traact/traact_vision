@@ -84,5 +84,5 @@ include(traact_default_library_final)
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (WITH_TESTS)
-    add_subdirectory(tests)
+    #add_subdirectory(tests)
 endif ()

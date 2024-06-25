@@ -288,11 +288,11 @@ bool createXyLookupTable(const CameraCalibration &calib, cv::Mat &xy_table) {
                 else
                 {
                     xy_table.at<cv::Vec2f>(y, x) = cv::Vec2f(0, 0);
-                    spdlog::warn("DepthtoPointcloudLookupTable: Invalid point: {0}, {1}", x, y);
+                    SPDLOG_WARN("DepthtoPointcloudLookupTable: Invalid point: {0}, {1}", x, y);
                 }
             }
             else {
-                spdlog::warn("DepthtoPointcloudLookupTable: No result for: {0}, {1}", x, y);
+                SPDLOG_WARN("DepthtoPointcloudLookupTable: No result for: {0}, {1}", x, y);
             }
         }
     }
